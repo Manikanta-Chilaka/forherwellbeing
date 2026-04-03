@@ -168,31 +168,33 @@ function BookSlotModal({ open, patient, onClose }) {
   );
 }
 
-/* ─── Static mock data ───────────────────────────────── */
-const STATS = [
-  { label: 'Total Patients',        value: '284',  change: '+12 this month', icon: '👥', color: 'blue'   },
-  { label: "Today's Consultations", value: '8',    change: '3 remaining',    icon: '📋', color: 'purple' },
-  { label: 'Pending Payments',      value: '17',   change: '₦340,000 due',   icon: '💳', color: 'amber'  },
-  { label: 'Completed This Month',  value: '63',   change: '+8 vs last month',icon: '✅', color: 'green'  },
-];
+/* ─── Derive stats from patients array ───────────────── */
+function useStats(patients) {
+  const today = new Date().toISOString().slice(0, 10);
+  const thisMonth = new Date().toISOString().slice(0, 7);
 
+  const total = patients.length;
 
-const CONSULTATIONS = [
-  { time: '09:00 AM', patient: 'Amaka Okonkwo',   doctor: 'Dr. Suleiman',  type: 'Follow-up',      status: 'Completed' },
-  { time: '10:30 AM', patient: 'Ngozi Adeyemi',   doctor: 'Dr. Okafor',    type: 'Initial',         status: 'Completed' },
-  { time: '12:00 PM', patient: 'Fatima Bello',    doctor: 'Dr. Suleiman',  type: 'Diet Review',     status: 'In Progress' },
-  { time: '02:00 PM', patient: 'Chidinma Eze',    doctor: 'Dr. Okafor',    type: 'Follow-up',      status: 'Upcoming' },
-  { time: '03:30 PM', patient: 'Halima Musa',     doctor: 'Dr. Suleiman',  type: 'Initial',         status: 'Upcoming' },
-  { time: '04:30 PM', patient: 'Kemi Adeleke',    doctor: 'Dr. Okafor',    type: 'Review',          status: 'Upcoming' },
-];
+  const todayConsults = patients.filter(p => p.consultationDate === today);
+  const todayRemaining = todayConsults.filter(p =>
+    p.consultStatus && !['Completed', 'Cancelled'].includes(p.consultStatus)
+  ).length;
 
-const ACTIVITY = [
-  { msg: 'New patient Halima Musa registered',           time: '10 mins ago',  icon: '👤' },
-  { msg: 'Payment received from Ngozi Adeyemi — ₦15,000', time: '42 mins ago', icon: '💰' },
-  { msg: 'Diet plan issued to Amaka Okonkwo',            time: '1 hr ago',     icon: '🥗' },
-  { msg: 'Consultation booked for Fatima Bello',         time: '2 hrs ago',    icon: '📅' },
-  { msg: 'Payment overdue: Kemi Adeleke',                time: '3 hrs ago',    icon: '⚠️' },
-];
+  const pendingPayments = patients.filter(p =>
+    p.paymentStatus && p.paymentStatus.toLowerCase() === 'pending'
+  ).length;
+
+  const completedThisMonth = patients.filter(p =>
+    p.consultStatus === 'Completed' && p.consultationDate?.startsWith(thisMonth)
+  ).length;
+
+  return [
+    { label: 'Total Patients',        value: total,              change: 'All registered patients', icon: '👥', color: 'blue'   },
+    { label: "Today's Consultations", value: todayConsults.length, change: `${todayRemaining} remaining today`, icon: '📋', color: 'purple' },
+    { label: 'Pending Payments',      value: pendingPayments,    change: 'Awaiting payment',        icon: '💳', color: 'amber'  },
+    { label: 'Completed This Month',  value: completedThisMonth, change: 'Consultations this month', icon: '✅', color: 'green'  },
+  ];
+}
 
 const NAV_ITEMS = [
   { label: 'Dashboard',       icon: '⬛', key: 'dashboard' },
@@ -382,45 +384,75 @@ function RecentPatients({ patients, loading, search, setSearch, onAddPatient, on
   );
 }
 
-function TodayConsultations({ onBookSlot }) {
+function TodayConsultations({ patients, onBookSlot }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const todayLabel = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  const list = patients.filter(p => p.consultationDate === today);
+
   return (
     <div className="sd-card">
       <div className="sd-card__head">
         <div>
           <h3 className="sd-card__title">Today's Consultations</h3>
-          <p className="sd-card__sub">02 April 2026</p>
+          <p className="sd-card__sub">{todayLabel}</p>
         </div>
         <button className="sd-btn sd-btn--outline" onClick={onBookSlot}>+ Book Slot</button>
       </div>
 
       <div className="sd-consult-list">
-        {CONSULTATIONS.map((c, i) => (
-          <div key={i} className="sd-consult-item">
-            <div className="sd-consult-time">
-              <span>{c.time}</span>
-            </div>
-            <div className={`sd-consult-line sd-consult-line--${c.status.toLowerCase().replace(' ', '-')}`} />
-            <div className="sd-consult-body">
-              <div className="sd-consult-top">
-                <span className="sd-consult-name">{c.patient}</span>
-                <span className={`sd-badge sd-badge--consult-${c.status.toLowerCase().replace(' ', '-')}`}>
-                  {c.status}
-                </span>
-              </div>
-              <div className="sd-consult-meta">
-                <span>{c.doctor}</span>
-                <span className="sd-dot">·</span>
-                <span>{c.type}</span>
-              </div>
-            </div>
+        {list.length === 0 && (
+          <div className="sd-empty" style={{ padding: '1.5rem 0' }}>
+            <span className="sd-empty__icon">📋</span>
+            <p className="sd-empty__title">No consultations today</p>
           </div>
-        ))}
+        )}
+        {list.map((p) => {
+          const status = p.consultStatus || 'Pending';
+          return (
+            <div key={p.id} className="sd-consult-item">
+              <div className="sd-consult-time">
+                <span>{p.consultationTime || '—'}</span>
+              </div>
+              <div className={`sd-consult-line sd-consult-line--${status.toLowerCase().replace(' ', '-')}`} />
+              <div className="sd-consult-body">
+                <div className="sd-consult-top">
+                  <span className="sd-consult-name">{p.name}</span>
+                  <span className={`sd-badge sd-badge--consult-${status.toLowerCase().replace(' ', '-')}`}>
+                    {status}
+                  </span>
+                </div>
+                <div className="sd-consult-meta">
+                  <span>{p.doctor || '—'}</span>
+                  <span className="sd-dot">·</span>
+                  <span>{p.condition}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function RecentActivity() {
+function RecentActivity({ patients }) {
+  // Build activity feed from 5 most recently registered patients
+  const recent = [...patients]
+    .sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate))
+    .slice(0, 5);
+
+  const items = recent.map(pt => {
+    if (pt.paymentStatus?.toLowerCase() === 'paid')
+      return { msg: `Payment received from ${pt.name}`, icon: '💰', date: pt.createdDate };
+    if (pt.dietStatus === 'Sent')
+      return { msg: `Diet plan sent to ${pt.name}`, icon: '🥗', date: pt.createdDate };
+    if (pt.consultationDate)
+      return { msg: `Consultation booked for ${pt.name}`, icon: '📅', date: pt.consultationDate };
+    if (pt.paymentStatus?.toLowerCase() === 'overdue')
+      return { msg: `Payment overdue: ${pt.name}`, icon: '⚠️', date: pt.createdDate };
+    return { msg: `New patient ${pt.name} registered`, icon: '👤', date: pt.createdDate };
+  });
+
   return (
     <div className="sd-card">
       <div className="sd-card__head">
@@ -430,12 +462,17 @@ function RecentActivity() {
         </div>
       </div>
       <div className="sd-activity-list">
-        {ACTIVITY.map((a, i) => (
+        {items.length === 0 && (
+          <div className="sd-empty" style={{ padding: '1.5rem 0' }}>
+            <p className="sd-empty__title">No activity yet</p>
+          </div>
+        )}
+        {items.map((a, i) => (
           <div key={i} className="sd-activity-item">
             <span className="sd-activity-icon">{a.icon}</span>
             <div className="sd-activity-body">
               <p className="sd-activity-msg">{a.msg}</p>
-              <p className="sd-activity-time">{a.time}</p>
+              <p className="sd-activity-time">{a.date || ''}</p>
             </div>
           </div>
         ))}
@@ -473,6 +510,7 @@ function QuickActions({ onAddPatient }) {
 export default function StaffDashboard() {
   const navigate                  = useNavigate();
   const { patients, addPatient, loading }  = usePatients();
+  const stats                     = useStats(patients);
   const [active, setActive]       = useState('dashboard');
   const [collapsed, setCollapsed] = useState(false);
   const [search, setSearch]       = useState('');
@@ -509,7 +547,7 @@ export default function StaffDashboard() {
         <div className="sd-content">
           {/* Stats row */}
           <div className="sd-stats-row">
-            {STATS.map(s => <StatCard key={s.label} {...s} />)}
+            {stats.map(s => <StatCard key={s.label} {...s} />)}
           </div>
 
           {/* Quick actions */}
@@ -520,8 +558,8 @@ export default function StaffDashboard() {
 
           {/* Bottom row */}
           <div className="sd-bottom-row">
-            <TodayConsultations onBookSlot={() => setBookSlotOpen(true)} />
-            <RecentActivity />
+            <TodayConsultations patients={patients} onBookSlot={() => setBookSlotOpen(true)} />
+            <RecentActivity patients={patients} />
           </div>
         </div>
       </div>
