@@ -494,7 +494,7 @@ export default function StaffDashboard() {
         <header className="sd-topbar">
           <div>
             <h1 className="sd-topbar__title">Staff Dashboard</h1>
-            <p className="sd-topbar__date">Thursday, 02 April 2026</p>
+            <p className="sd-topbar__date">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>
           </div>
           <div className="sd-topbar__right">
             <div className="sd-topbar__notif">
