@@ -63,7 +63,7 @@ function validate(form) {
   const e = {};
   if (!form.name.trim())  e.name  = 'Patient name is required.';
   if (!form.phone.trim()) e.phone = 'Phone number is required.';
-  else if (!/^\+?[\d\s\-]{7,15}$/.test(form.phone))
+  else if (!/^\+?[\d\s-]{7,15}$/.test(form.phone))
                           e.phone = 'Enter a valid phone number.';
   if (!form.age)          e.age   = 'Age is required.';
   else if (form.age < 1 || form.age > 120)
@@ -134,7 +134,7 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
       setForm(seedForm(patient));
       setErrors({});
     }
-  }, [patient?.id]);
+  }, [patient]);
 
   /* Lock body scroll */
   useEffect(() => {
