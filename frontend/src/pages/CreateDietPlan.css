@@ -1,0 +1,580 @@
+/* ══════════════════════════════════════════════════════
+   CREATE DIET PLAN  —  cdp-*
+   Healthcare SaaS · Blue accent · Card-based
+══════════════════════════════════════════════════════ */
+
+/* ─── Page shell ─────────────────────────────────────── */
+.cdp-page {
+  min-height: 100vh;
+  background: #F0F4F8;
+  padding: 28px 32px 80px;
+  font-family: 'Inter', sans-serif;
+  color: #1E293B;
+  box-sizing: border-box;
+}
+
+/* ─── Breadcrumb ─────────────────────────────────────── */
+.cdp-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #64748B;
+  margin-bottom: 20px;
+}
+.cdp-bc-link {
+  color: #3B82F6;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.cdp-bc-link:hover { color: #1D4ED8; text-decoration: underline; }
+.cdp-bc-sep { color: #CBD5E1; font-size: 15px; }
+.cdp-bc-current { color: #1E293B; font-weight: 500; }
+
+/* ─── Page header ────────────────────────────────────── */
+.cdp-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.cdp-page-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 4px;
+}
+.cdp-page-sub {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0;
+}
+.cdp-back-btn { font-size: 13px; }
+
+/* ─── Patient Summary Card ───────────────────────────── */
+.cdp-patient-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(59,130,246,0.07);
+  border: 1px solid #E2E8F0;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+  overflow-x: auto;
+}
+.cdp-patient-avatar {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cdp-patient-fields {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.cdp-patient-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-right: 1px solid #F1F5F9;
+}
+.cdp-patient-field:last-child { border-right: none; }
+.cdp-patient-field-icon {
+  display: flex;
+  align-items: center;
+  color: #3B82F6;
+}
+.cdp-patient-field-icon .cdp-icon svg { width: 15px; height: 15px; }
+.cdp-patient-field-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94A3B8;
+  margin-bottom: 2px;
+}
+.cdp-patient-field-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1E293B;
+  white-space: nowrap;
+}
+
+/* ─── Body layout ────────────────────────────────────── */
+.cdp-body {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ─── Section ────────────────────────────────────────── */
+.cdp-section { display: flex; flex-direction: column; gap: 14px; }
+
+.cdp-section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.cdp-section-num {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 50%;
+  background: #3B82F6;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+.cdp-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 2px;
+}
+.cdp-section-desc { font-size: 13px; color: #64748B; }
+
+/* ─── Card ───────────────────────────────────────────── */
+.cdp-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  padding: 24px;
+}
+
+/* ─── Grid ───────────────────────────────────────────── */
+.cdp-grid {
+  display: grid;
+  gap: 16px;
+}
+.cdp-grid--2 { grid-template-columns: 1fr 1fr; }
+.cdp-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+.cdp-field--span2 { grid-column: span 2; }
+
+/* ─── Form fields ────────────────────────────────────── */
+.cdp-field { display: flex; flex-direction: column; gap: 6px; }
+
+.cdp-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.02em;
+}
+
+.cdp-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 13.5px;
+  color: #1E293B;
+  background: #FAFBFC;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+.cdp-input:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  background: #fff;
+}
+.cdp-input::placeholder { color: #94A3B8; }
+
+.cdp-input--sm { padding: 7px 10px; font-size: 13px; }
+
+.cdp-select { appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+}
+
+.cdp-textarea { resize: vertical; line-height: 1.6; }
+.cdp-textarea--sm { min-height: 60px; }
+.cdp-textarea--lg { min-height: 100px; }
+
+/* ─── Diet type toggle ───────────────────────────────── */
+.cdp-diet-toggle {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cdp-diet-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #E2E8F0;
+  background: #F8FAFC;
+  color: #64748B;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.cdp-diet-btn:hover { border-color: #93C5FD; background: #EFF6FF; color: #1D4ED8; }
+.cdp-diet-btn--active {
+  background: #EFF6FF;
+  border-color: #3B82F6;
+  color: #1D4ED8;
+  font-weight: 600;
+}
+
+/* ─── Meal grid ──────────────────────────────────────── */
+.cdp-meals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.cdp-meal-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.cdp-meal-card:hover {
+  box-shadow: 0 4px 16px rgba(59,130,246,0.1);
+  border-color: #BAE6FD;
+}
+
+.cdp-meal-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+  border-bottom: 1px solid #BAE6FD;
+}
+.cdp-meal-emoji { font-size: 22px; line-height: 1; }
+.cdp-meal-label { font-size: 13.5px; font-weight: 700; color: #0F172A; margin-bottom: 1px; }
+.cdp-meal-time  { font-size: 11px; color: #64748B; font-weight: 500; }
+
+.cdp-meal-fields {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ─── File dropzones ─────────────────────────────────── */
+.cdp-dropzone {
+  border: 2px dashed #CBD5E1;
+  border-radius: 12px;
+  background: #F8FAFC;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  min-height: 140px;
+}
+.cdp-dropzone:hover, .cdp-dropzone--over {
+  border-color: #3B82F6;
+  background: #EFF6FF;
+}
+.cdp-dropzone--filled {
+  border-color: #22C55E;
+  background: #F0FDF4;
+}
+
+.cdp-dz-icon { color: #94A3B8; }
+.cdp-dz-icon .cdp-icon svg { width: 28px; height: 28px; }
+.cdp-dz-title  { font-size: 14px; font-weight: 600; color: #334155; }
+.cdp-dz-hint   { font-size: 12px; color: #94A3B8; }
+.cdp-dz-file-icon { font-size: 28px; }
+.cdp-dz-filename  { font-size: 13px; font-weight: 600; color: #1E293B; word-break: break-all; }
+.cdp-dz-replace   { font-size: 11px; color: #64748B; }
+
+/* ─── Action bar ─────────────────────────────────────── */
+.cdp-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  flex-wrap: wrap;
+}
+.cdp-action-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ─── Buttons ────────────────────────────────────────── */
+.cdp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.18s;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cdp-btn .cdp-icon svg { width: 15px; height: 15px; }
+
+.cdp-btn--primary {
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+}
+.cdp-btn--primary:hover {
+  background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+  box-shadow: 0 4px 16px rgba(59,130,246,0.4);
+  transform: translateY(-1px);
+}
+
+.cdp-btn--secondary {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1.5px solid #BFDBFE;
+}
+.cdp-btn--secondary:hover { background: #DBEAFE; border-color: #93C5FD; }
+
+.cdp-btn--ghost {
+  background: transparent;
+  color: #64748B;
+  border: 1.5px solid #E2E8F0;
+}
+.cdp-btn--ghost:hover { background: #F8FAFC; color: #374151; border-color: #CBD5E1; }
+
+.cdp-btn--draft {
+  background: #F8FAFC;
+  color: #475569;
+  border: 1.5px solid #CBD5E1;
+}
+.cdp-btn--draft:hover { background: #F1F5F9; border-color: #94A3B8; color: #1E293B; }
+
+/* ─── Icon helper ────────────────────────────────────── */
+.cdp-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.cdp-icon svg { width: 16px; height: 16px; }
+
+/* ─── Send Modal ─────────────────────────────────────── */
+.cdp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  padding: 20px;
+  backdrop-filter: blur(2px);
+}
+
+.cdp-send-modal {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 460px;
+  padding: 28px;
+  animation: cdpModalIn 0.2s ease;
+}
+@keyframes cdpModalIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.cdp-send-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.cdp-send-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0F172A;
+}
+.cdp-send-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #EFF6FF;
+  color: #3B82F6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cdp-send-icon-wrap .cdp-icon svg { width: 17px; height: 17px; }
+
+.cdp-send-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #F1F5F9;
+  border-radius: 8px;
+  color: #64748B;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.cdp-send-close:hover { background: #E2E8F0; color: #1E293B; }
+.cdp-send-close .cdp-icon svg { width: 14px; height: 14px; }
+
+.cdp-send-subtitle {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0 0 20px;
+}
+
+.cdp-send-channels {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.cdp-channel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1.5px solid #E2E8F0;
+  background: #F8FAFC;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cdp-channel--on { background: #EFF6FF; border-color: #93C5FD; }
+
+.cdp-channel-text { display: flex; flex-direction: column; gap: 2px; }
+.cdp-channel-label { font-size: 13.5px; font-weight: 600; color: #1E293B; }
+.cdp-channel-desc  { font-size: 12px; color: #94A3B8; }
+
+/* Toggle switch */
+.cdp-toggle {
+  width: 40px;
+  height: 22px;
+  min-width: 40px;
+  border-radius: 11px;
+  background: #CBD5E1;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cdp-toggle--on { background: #3B82F6; }
+.cdp-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: left 0.2s;
+}
+.cdp-toggle--on .cdp-toggle-knob { left: 21px; }
+
+.cdp-send-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ─── Toast ──────────────────────────────────────────── */
+.cdp-toast {
+  position: fixed;
+  bottom: 30px;
+  right: 32px;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #fff;
+  padding: 13px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  box-shadow: 0 8px 24px rgba(16,185,129,0.35);
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.cdp-toast--show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.cdp-toast-check {
+  width: 22px;
+  height: 22px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cdp-toast-check .cdp-icon svg { width: 12px; height: 12px; }
+
+/* ─── Responsive ─────────────────────────────────────── */
+@media (max-width: 960px) {
+  .cdp-page { padding: 20px 18px 60px; }
+  .cdp-grid--3 { grid-template-columns: 1fr 1fr; }
+  .cdp-field--span2 { grid-column: span 1; }
+  .cdp-patient-fields { gap: 0; }
+  .cdp-patient-field { padding: 6px 12px; }
+}
+
+@media (max-width: 680px) {
+  .cdp-grid--2, .cdp-grid--3 { grid-template-columns: 1fr; }
+  .cdp-field--span2 { grid-column: span 1; }
+  .cdp-meals-grid { grid-template-columns: 1fr; }
+  .cdp-action-bar { flex-direction: column; align-items: stretch; }
+  .cdp-action-right { flex-direction: column; }
+  .cdp-btn { justify-content: center; }
+  .cdp-page-header { flex-direction: column; }
+  .cdp-patient-card { flex-direction: column; align-items: flex-start; }
+  .cdp-patient-fields { flex-direction: column; }
+  .cdp-patient-field { border-right: none; border-bottom: 1px solid #F1F5F9; padding: 8px 0; }
+  .cdp-patient-field:last-child { border-bottom: none; }
+}

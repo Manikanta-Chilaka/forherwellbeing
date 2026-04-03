@@ -1,0 +1,86 @@
+/* ── Edit modal accent colour — teal instead of blue ─────── */
+.epm-modal .apm-section-step {
+  background: #0d9488;
+}
+
+.epm-header .apm-header__icon {
+  background: #f0fdfa;
+}
+
+.epm-icon {
+  font-size: 1.1rem;
+}
+
+.epm-id {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
+/* ── Changed-field indicator ─────────────────────────────── */
+.epm-changed-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #1e5799;
+  flex-shrink: 0;
+  position: absolute;
+  top: 50%;
+  right: -14px;
+  transform: translateY(-50%);
+  box-shadow: 0 0 0 2px #dbeafe;
+}
+
+/* ── Input wrapper for positioning the dot ───────────────── */
+.epm-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.epm-input-wrap .apm-input,
+.epm-input-wrap .apm-select {
+  flex: 1;
+}
+
+/* ── Toggle wrapper (for toggles + dot) ─────────────────── */
+.epm-toggle-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Overdue toggle state ────────────────────────────────── */
+.apm-toggle--active-overdue {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* ── Notice bar ──────────────────────────────────────────── */
+.epm-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.75rem;
+  background: #eff6ff;
+  border-bottom: 1px solid #dbeafe;
+  font-size: 0.78rem;
+  color: #1e5799;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* ── Update button — green tint ──────────────────────────── */
+.epm-btn-update {
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+}
+
+.epm-btn-update:hover:not(:disabled) {
+  box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
+}
