@@ -196,16 +196,25 @@ export default function CreateDietPlan() {
       });
 
       // Call Supabase Edge Function
-      const { error } = await supabase.functions.invoke('send-diet-plan', {
+      const { data: fnData, error } = await supabase.functions.invoke('send-diet-plan', {
         body: {
-          to:         email,
+          to:          email,
           patientName: patient?.name || 'Patient',
-          planTitle:  plan?.title   || 'Diet Plan',
-          pdfBase64:  base64,
+          planTitle:   plan?.title   || 'Diet Plan',
+          pdfBase64:   base64,
         },
       });
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        // Try to extract the real error message from the function response
+        let msg = error.message;
+        try {
+          const ctx = await error.context?.json();
+          if (ctx?.error) msg = ctx.error;
+        } catch (_) {}
+        throw new Error(msg);
+      }
+      if (fnData?.error) throw new Error(fnData.error);
 
       if (patient) updatePatient(patient.id, { dietStatus: 'Sent' });
       setSendOpen(false);
