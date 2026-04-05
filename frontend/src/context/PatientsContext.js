@@ -9,6 +9,7 @@ function fromDb(row) {
   return {
     id:                 row.id,
     name:               row.name,
+    email:              row.email,
     phone:              row.phone,
     age:                row.age,
     height:             row.height,
@@ -59,6 +60,7 @@ function fromDb(row) {
 function toDb(fields) {
   const map = {
     name:               'name',
+    email:              'email',
     phone:              'phone',
     age:                'age',
     height:             'height',

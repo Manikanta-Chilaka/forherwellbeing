@@ -20,7 +20,7 @@ const MENSTRUAL_OPTIONS = ['Regular', 'Irregular', 'Heavy bleeding', 'Painful pe
 /* ─── Initial state ─────────────────────────────────── */
 const INIT = {
   // 1. Basic
-  name: '', phone: '', age: '', height: '', weight: '',
+  name: '', email: '', phone: '', age: '', height: '', weight: '',
   // 2. Medical
   condition: '', medications: '', allergies: '', menstrual: '',
   // 3. Lifestyle
@@ -239,6 +239,11 @@ export default function AddPatientModal({ open, onClose, onSave }) {
                 <Field label="Patient Name" required error={errors.name}>
                   <Input type="text" placeholder="e.g. Amaka Okonkwo"
                     value={form.name} onChange={set('name')} error={errors.name} />
+                </Field>
+
+                <Field label="Email Address" error={errors.email}>
+                  <Input type="email" placeholder="e.g. patient@gmail.com"
+                    value={form.email} onChange={set('email')} error={errors.email} />
                 </Field>
 
                 <Field label="Phone Number" required error={errors.phone}>
