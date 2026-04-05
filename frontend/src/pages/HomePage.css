@@ -1,5 +1,8 @@
 
 /* ── Shared Utilities ──────────────────────────────────── */
+.page-section-top {
+  padding-top: 7rem; /* clears fixed navbar */
+}
 .section-inner {
   max-width: 1200px;
   margin: 0 auto;

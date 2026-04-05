@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/for_her_wellbeing_logo.jpg';
 import './Navbar.css';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -12,21 +14,26 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close menu on route change
+  useEffect(() => { setMenuOpen(false); }, [location]);
+
+  const close = () => setMenuOpen(false);
+  const isActive = (path) => location.pathname === path ? 'active' : '';
+
   return (
     <nav className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
       <div className="navbar__inner">
-        <div className="navbar__logo">
+        <Link to="/" className="navbar__logo" onClick={close}>
           <img src={logo} alt="For Her Wellbeing" className="navbar__logo-img" />
-        </div>
+        </Link>
 
         <ul className={`navbar__links ${menuOpen ? 'navbar__links--open' : ''}`}>
-          <li><a href="#about" onClick={() => setMenuOpen(false)}>About</a></li>
-          <li><a href="#mission" onClick={() => setMenuOpen(false)}>Our Mission</a></li>
-          <li><a href="#services" onClick={() => setMenuOpen(false)}>Services</a></li>
-          <li><a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a></li>
+          <li><Link to="/about"    className={isActive('/about')}    onClick={close}>About</Link></li>
+          <li><Link to="/services" className={isActive('/services')} onClick={close}>Services</Link></li>
+          <li><Link to="/contact"  className={isActive('/contact')}  onClick={close}>Contact</Link></li>
         </ul>
 
-        <a href="#book" className="navbar__cta">Book Consultation</a>
+        <Link to="/contact" className="navbar__cta" onClick={close}>Book Consultation</Link>
 
         <button
           className={`navbar__burger ${menuOpen ? 'navbar__burger--open' : ''}`}
