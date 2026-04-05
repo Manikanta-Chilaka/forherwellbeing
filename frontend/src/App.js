@@ -7,6 +7,7 @@ import AboutPage from './pages/AboutPage';
 import ServicesPage from './pages/ServicesPage';
 import ContactPage from './pages/ContactPage';
 import StaffLogin from './pages/StaffLogin';
+import DoctorLogin from './pages/DoctorLogin';
 import StaffDashboard from './pages/StaffDashboard';
 import PatientDetail from './pages/PatientDetail';
 import DoctorDashboard from './pages/DoctorDashboard';
@@ -38,6 +39,7 @@ function App() {
           <Route path="/services" element={<PublicLayout><ServicesPage /></PublicLayout>} />
           <Route path="/contact"  element={<PublicLayout><ContactPage /></PublicLayout>} />
           <Route path="/staff"                    element={<StaffLogin />} />
+          <Route path="/doctor"                   element={<DoctorLogin />} />
           <Route path="/staff/dashboard"          element={<StaffDashboard />} />
           <Route path="/staff/patients/:id"       element={<PatientDetail />} />
           <Route path="/staff/patients/:id/diet"  element={<DietView />} />

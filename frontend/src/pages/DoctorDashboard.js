@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { usePatients } from '../context/PatientsContext';
 import { DIET_TEMPLATES } from '../data/dietTemplates';
+import { supabase } from '../lib/supabaseClient';
 import './DoctorDashboard.css';
 
 /* ─── Logged-in doctor (swap when auth is added) ─────── */
@@ -351,11 +352,18 @@ function PatientsTable({ patients, onMarkCompleted, onGenerateDiet, search, setS
 
 /* ─── Main Dashboard ─────────────────────────────────── */
 export default function DoctorDashboard() {
+  const navigate                      = useNavigate();
   const { patients, updatePatient }   = usePatients();
   const [active, setActive]           = useState('patients');
   const [collapsed, setCollapsed]     = useState(false);
   const [search, setSearch]           = useState('');
   const [dietPatient, setDietPatient] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) navigate('/doctor');
+    });
+  }, [navigate]);
 
   /* Filter only patients assigned to this doctor */
   const myPatients = patients.filter(
