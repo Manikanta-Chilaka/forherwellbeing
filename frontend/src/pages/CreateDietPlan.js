@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { usePatients } from '../context/PatientsContext';
 import { getTemplate } from '../data/dietTemplates';
+import DietPlanPDF from '../components/DietPlanPDF';
 import './CreateDietPlan.css';
 
 /* ─── Icons (inline SVG) ─────────────────────────────── */
@@ -475,9 +477,13 @@ export default function CreateDietPlan() {
             <button className="cdp-btn cdp-btn--ghost">
               <Icon name="eye" /> Preview Plan
             </button>
-            <button className="cdp-btn cdp-btn--secondary">
-              <Icon name="pdf" /> Generate PDF
-            </button>
+            <PDFDownloadLink
+              document={<DietPlanPDF patient={patient} plan={plan} meals={meals} restrictions={restrictions} doctorNotes={doctorNotes} />}
+              fileName={`DietPlan-${patient?.name?.replace(/\s+/g, '-') || 'patient'}.pdf`}
+              className="cdp-btn cdp-btn--secondary"
+            >
+              {({ loading: pdfLoading }) => pdfLoading ? 'Preparing PDF…' : <><Icon name="pdf" /> Download PDF</>}
+            </PDFDownloadLink>
             <button className="cdp-btn cdp-btn--primary" onClick={() => setSendOpen(true)}>
               <Icon name="send" /> Send to Patient
             </button>
