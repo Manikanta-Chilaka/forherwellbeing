@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import { usePatients } from '../context/PatientsContext';
 import { getTemplate } from '../data/dietTemplates';
+import { supabase } from '../lib/supabaseClient';
 import DietPlanPDF from '../components/DietPlanPDF';
 import './CreateDietPlan.css';
 
@@ -44,11 +45,23 @@ const emptyMeal = () => ({ items: '', quantity: '', calories: '', notes: '' });
 const initMeals = () => Object.fromEntries(MEAL_SLOTS.map(s => [s.key, emptyMeal()]));
 
 /* ─── Send Modal ─────────────────────────────────────── */
-function SendModal({ open, onClose, onSend }) {
-  const [channels, setChannels] = useState({ email: true, whatsapp: false, dashboard: true });
+function SendModal({ open, onClose, onSend, defaultEmail }) {
+  const [email, setEmail]     = useState(defaultEmail || '');
+  const [sending, setSending] = useState(false);
+  const [error, setError]     = useState('');
+
   if (!open) return null;
 
-  const toggle = (k) => setChannels(prev => ({ ...prev, [k]: !prev[k] }));
+  async function handleSend() {
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    setError('');
+    setSending(true);
+    await onSend(email);
+    setSending(false);
+  }
 
   return createPortal(
     <div className="cdp-overlay" onClick={onClose}>
@@ -61,30 +74,26 @@ function SendModal({ open, onClose, onSend }) {
           <button className="cdp-send-close" onClick={onClose}><Icon name="close" /></button>
         </div>
 
-        <p className="cdp-send-subtitle">Choose how to deliver the diet plan to the patient.</p>
+        <p className="cdp-send-subtitle">
+          The diet plan PDF will be emailed directly to the patient.
+        </p>
 
-        <div className="cdp-send-channels">
-          {[
-            { key: 'email',     label: 'Send via Email',           desc: 'Patient receives a formatted email' },
-            { key: 'whatsapp',  label: 'Send via WhatsApp',        desc: 'Share as a PDF attachment on WhatsApp' },
-            { key: 'dashboard', label: 'Add to Patient Dashboard', desc: 'Visible in patient portal immediately' },
-          ].map(({ key, label, desc }) => (
-            <label key={key} className={`cdp-channel ${channels[key] ? 'cdp-channel--on' : ''}`}>
-              <div className="cdp-channel-text">
-                <span className="cdp-channel-label">{label}</span>
-                <span className="cdp-channel-desc">{desc}</span>
-              </div>
-              <div className={`cdp-toggle ${channels[key] ? 'cdp-toggle--on' : ''}`} onClick={() => toggle(key)}>
-                <div className="cdp-toggle-knob" />
-              </div>
-            </label>
-          ))}
+        <div className="cdp-field" style={{ marginBottom: '1rem' }}>
+          <label className="cdp-label">Patient Email Address</label>
+          <input
+            className="cdp-input"
+            type="email"
+            placeholder="patient@example.com"
+            value={email}
+            onChange={e => { setEmail(e.target.value); setError(''); }}
+          />
+          {error && <p style={{ color: '#e53e3e', fontSize: '0.8rem', marginTop: '0.4rem' }}>{error}</p>}
         </div>
 
         <div className="cdp-send-actions">
-          <button className="cdp-btn cdp-btn--ghost" onClick={onClose}>Cancel</button>
-          <button className="cdp-btn cdp-btn--primary" onClick={onSend}>
-            <Icon name="send" /> Send Now
+          <button className="cdp-btn cdp-btn--ghost" onClick={onClose} disabled={sending}>Cancel</button>
+          <button className="cdp-btn cdp-btn--primary" onClick={handleSend} disabled={sending}>
+            {sending ? 'Sending…' : <><Icon name="send" /> Send Now</>}
           </button>
         </div>
       </div>
@@ -166,10 +175,45 @@ export default function CreateDietPlan() {
     showToast();
   };
 
-  const handleSend = () => {
-    if (patient) updatePatient(patient.id, { dietStatus: 'Sent' });
-    setSendOpen(false);
-    showToast();
+  const handleSend = async (email) => {
+    try {
+      // Generate PDF as base64
+      const blob = await pdf(
+        <DietPlanPDF
+          patient={patient}
+          plan={plan}
+          meals={meals}
+          restrictions={restrictions}
+          doctorNotes={doctorNotes}
+        />
+      ).toBlob();
+
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      // Call Supabase Edge Function
+      const { error } = await supabase.functions.invoke('send-diet-plan', {
+        body: {
+          to:         email,
+          patientName: patient?.name || 'Patient',
+          planTitle:  plan?.title   || 'Diet Plan',
+          pdfBase64:  base64,
+        },
+      });
+
+      if (error) throw new Error(error.message);
+
+      if (patient) updatePatient(patient.id, { dietStatus: 'Sent' });
+      setSendOpen(false);
+      showToast();
+    } catch (err) {
+      console.error('Failed to send email:', err);
+      alert('Failed to send email: ' + err.message);
+    }
   };
 
   const handleDrop = (e, field) => {
@@ -492,7 +536,7 @@ export default function CreateDietPlan() {
       </div>
 
       {/* ── Send Modal ── */}
-      <SendModal open={sendOpen} onClose={() => setSendOpen(false)} onSend={handleSend} />
+      <SendModal open={sendOpen} onClose={() => setSendOpen(false)} onSend={handleSend} defaultEmail={patient?.email || ''} />
     </div>
   );
 }
