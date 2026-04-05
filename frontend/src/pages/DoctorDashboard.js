@@ -1,162 +1,11 @@
 import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { usePatients } from '../context/PatientsContext';
-import { DIET_TEMPLATES } from '../data/dietTemplates';
 import { supabase } from '../lib/supabaseClient';
 import './DoctorDashboard.css';
 
 /* ─── Logged-in doctor (swap when auth is added) ─────── */
 const CURRENT_DOCTOR = 'Dr. Raga Deepthi';
-
-function getTemplate(condition) {
-  return DIET_TEMPLATES[condition] || DIET_TEMPLATES['default'];
-}
-
-/* ─── Generate Diet Modal ────────────────────────────── */
-function GenerateDietModal({ open, patient, onClose, onSaved }) {
-  const raw = patient ? getTemplate(patient.condition) : null;
-  const [plan, setPlan] = useState(null);
-  const [saved, setSaved] = useState(false);
-
-  // load template when modal opens for a patient
-  useState(() => { if (open && raw && !plan) setPlan(JSON.parse(JSON.stringify(raw))); });
-
-  // reset on open
-  if (open && patient && !plan) {
-    setPlan(JSON.parse(JSON.stringify(getTemplate(patient.condition))));
-  }
-
-  function handleClose() { setPlan(null); setSaved(false); onClose(); }
-
-  function updateMealItem(idx, field, value) {
-    setPlan(prev => {
-      const meals = prev.meals.map((m, i) => i === idx ? { ...m, [field]: value } : m);
-      return { ...prev, meals };
-    });
-  }
-
-  function updateField(field, value) {
-    setPlan(prev => ({ ...prev, [field]: value }));
-  }
-
-  function handleSave() {
-    setSaved(true);
-    if (onSaved) onSaved(patient.id, plan);
-    setTimeout(() => { setSaved(false); handleClose(); }, 1400);
-  }
-
-  if (!open || !patient || !plan) return null;
-
-  return createPortal(
-    <div className="gd-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}>
-      <div className="gd-modal" role="dialog" aria-modal="true">
-
-        {/* Header */}
-        <div className="gd-header">
-          <div className="gd-header__left">
-            <div className="gd-header__icon">🥗</div>
-            <div>
-              <h2 className="gd-title">Diet Plan — {patient.name}</h2>
-              <p className="gd-sub">{patient.condition} · Generated for {CURRENT_DOCTOR}</p>
-            </div>
-          </div>
-          <button className="gd-close" onClick={handleClose}>✕</button>
-        </div>
-
-        {saved ? (
-          <div className="gd-success">
-            <span className="gd-success__icon">✅</span>
-            <p>Diet plan saved successfully!</p>
-          </div>
-        ) : (
-          <div className="gd-body">
-
-            {/* Goal */}
-            <div className="gd-section">
-              <label className="gd-section__label">🎯 Goal</label>
-              <textarea
-                className="gd-textarea"
-                rows={2}
-                value={plan.goal}
-                onChange={e => updateField('goal', e.target.value)}
-              />
-            </div>
-
-            {/* Meal plan */}
-            <div className="gd-section">
-              <p className="gd-section__label">🕐 Meal Schedule</p>
-              <div className="gd-meals">
-                {plan.meals.map((meal, idx) => (
-                  <div key={idx} className="gd-meal-row">
-                    <div className="gd-meal-time">{meal.time}</div>
-                    <div className="gd-meal-fields">
-                      <input
-                        className="gd-input"
-                        value={meal.items}
-                        placeholder="Food items…"
-                        onChange={e => updateMealItem(idx, 'items', e.target.value)}
-                      />
-                      <input
-                        className="gd-input gd-input--note"
-                        value={meal.notes}
-                        placeholder="Notes…"
-                        onChange={e => updateMealItem(idx, 'notes', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Avoid */}
-            <div className="gd-section">
-              <p className="gd-section__label">🚫 Foods to Avoid</p>
-              <div className="gd-avoid-list">
-                {plan.avoid.map((item, idx) => (
-                  <span key={idx} className="gd-avoid-tag">{item}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* Supplements */}
-            <div className="gd-section">
-              <p className="gd-section__label">💊 Recommended Supplements</p>
-              <div className="gd-avoid-list">
-                {plan.supplements.map((s, idx) => (
-                  <span key={idx} className="gd-supp-tag">{s}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* Doctor notes */}
-            <div className="gd-section gd-section--last">
-              <label className="gd-section__label">📝 Doctor Notes</label>
-              <textarea
-                className="gd-textarea"
-                rows={3}
-                placeholder="Add any personalised notes for this patient…"
-                value={plan.notes}
-                onChange={e => updateField('notes', e.target.value)}
-              />
-            </div>
-          </div>
-        )}
-
-        {!saved && (
-          <div className="gd-footer">
-            <button className="gd-btn gd-btn--cancel" onClick={handleClose}>Cancel</button>
-            <button className="gd-btn gd-btn--save" onClick={handleSave}>
-              💾 Save Diet Plan
-            </button>
-          </div>
-        )}
-
-      </div>
-    </div>,
-    document.body
-  );
-}
 
 /* ─── Nav items ──────────────────────────────────────── */
 const NAV_ITEMS = [
@@ -264,7 +113,7 @@ function StatCard({ label, value, icon, color }) {
 }
 
 /* ─── Patients table ─────────────────────────────────── */
-function PatientsTable({ patients, onMarkCompleted, onGenerateDiet, search, setSearch }) {
+function PatientsTable({ patients, onMarkCompleted, search, setSearch }) {
   const navigate = useNavigate();
   const filtered = patients.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -326,9 +175,6 @@ function PatientsTable({ patients, onMarkCompleted, onGenerateDiet, search, setS
                         ✓ Mark Completed
                       </button>
                     )}
-                    <button className="dd-btn dd-btn--diet" onClick={() => onGenerateDiet(p)}>
-                      🥗 Generate Diet
-                    </button>
                     <button className="dd-btn dd-btn--diet-plan" onClick={() => navigate(`/doctor/diet-plan/${p.id}`)}>
                       📋 Diet Plan
                     </button>
@@ -357,7 +203,6 @@ export default function DoctorDashboard() {
   const [active, setActive]           = useState('patients');
   const [collapsed, setCollapsed]     = useState(false);
   const [search, setSearch]           = useState('');
-  const [dietPatient, setDietPatient] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -437,19 +282,12 @@ export default function DoctorDashboard() {
           <PatientsTable
             patients={myPatients}
             onMarkCompleted={handleMarkCompleted}
-            onGenerateDiet={(p) => setDietPatient(p)}
             search={search}
             setSearch={setSearch}
           />
         </div>
       </div>
 
-      <GenerateDietModal
-        open={!!dietPatient}
-        patient={dietPatient}
-        onClose={() => setDietPatient(null)}
-        onSaved={(id, plan) => updatePatient(id, { dietStatus: 'Ready', dietPlan: plan })}
-      />
     </div>
   );
 }

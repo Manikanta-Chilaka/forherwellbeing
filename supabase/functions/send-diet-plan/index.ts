@@ -1,5 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createTransport } from 'npm:nodemailer@6.9.9';
+import { SMTPClient } from 'https://deno.land/x/denomailer@1.6.0/mod.ts';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -15,22 +15,26 @@ serve(async (req) => {
     const { to, patientName, planTitle, pdfBase64 } = await req.json();
 
     if (!to || !pdfBase64) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+      return new Response(JSON.stringify({ error: 'Missing to or pdfBase64' }), {
         status: 400,
         headers: { ...CORS, 'Content-Type': 'application/json' },
       });
     }
 
-    const transporter = createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'forherwellbeing.official@gmail.com',
-        pass: Deno.env.get('GMAIL_APP_PASSWORD'),
+    const client = new SMTPClient({
+      connection: {
+        hostname: 'smtp.gmail.com',
+        port: 465,
+        tls: true,
+        auth: {
+          username: 'forherwellbeing.official@gmail.com',
+          password: Deno.env.get('GMAIL_APP_PASSWORD')!,
+        },
       },
     });
 
-    await transporter.sendMail({
-      from: '"ForHerWellbeing" <forherwellbeing.official@gmail.com>',
+    await client.send({
+      from: 'ForHerWellbeing <forherwellbeing.official@gmail.com>',
       to,
       subject: `Your Personalised Diet Plan — ${planTitle || 'Diet Plan'}`,
       html: `
@@ -46,7 +50,7 @@ serve(async (req) => {
               This plan has been specially prepared for you by your doctor at ForHerWellbeing.
             </p>
             <p style="color:#555570;line-height:1.7;font-size:14px;">
-              Follow the plan consistently and feel free to reach out if you have any questions or need adjustments.
+              Follow the plan consistently and feel free to reach out if you have any questions.
             </p>
             <div style="background:#f3e8f3;border-left:4px solid #7c3f7b;padding:14px 18px;border-radius:6px;margin:24px 0;">
               <p style="margin:0;font-size:13px;color:#555570;">Plan attached</p>
@@ -60,28 +64,31 @@ serve(async (req) => {
           </div>
           <div style="background:#f8f0f8;padding:12px 32px;text-align:center;">
             <p style="margin:0;font-size:11px;color:#b57aa8;">
-              This email was sent exclusively for ${patientName}. Please do not share this plan.
+              This plan was prepared exclusively for ${patientName}. Please do not share.
             </p>
           </div>
         </div>
       `,
       attachments: [
         {
+          contentType: 'application/pdf',
+          encoding: 'base64',
           filename: `DietPlan-${(patientName || 'patient').replace(/\s+/g, '-')}.pdf`,
           content: pdfBase64,
-          encoding: 'base64',
-          contentType: 'application/pdf',
         },
       ],
     });
+
+    await client.close();
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...CORS, 'Content-Type': 'application/json' },
     });
 
   } catch (err) {
-    console.error('Email send error:', err);
-    return new Response(JSON.stringify({ error: err.message }), {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('Email error:', message);
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...CORS, 'Content-Type': 'application/json' },
     });
