@@ -116,9 +116,30 @@ export function PatientsProvider({ children }) {
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState(null);
 
-  /* ── Fetch all patients on mount ── */
+  /* ── Fetch and Listen (Supabase Realtime) ── */
   useEffect(() => {
     fetchPatients();
+
+    // 1. Set up Realtime listener
+    const subscription = supabase
+      .channel('patients-realtime')
+      .on('postgres_changes', { event: '*', table: 'patients', schema: 'public' }, (payload) => {
+        console.log('Realtime change received:', payload);
+        
+        if (payload.eventType === 'INSERT') {
+          setPatients(prev => [fromDb(payload.new), ...prev]);
+        } else if (payload.eventType === 'UPDATE') {
+          setPatients(prev => prev.map(p => p.id === payload.new.id ? fromDb(payload.new) : p));
+        } else if (payload.eventType === 'DELETE') {
+          setPatients(prev => prev.filter(p => p.id === payload.old.id));
+        }
+      })
+      .subscribe();
+
+    // 2. Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   async function fetchPatients() {
