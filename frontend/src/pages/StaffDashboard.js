@@ -31,6 +31,110 @@ const BOOK_INIT = {
   doctor: 'Dr. Raga Deepthi', type: 'Initial', notes: '',
 };
 
+/* ─── Record Payment Modal ───────────────────────────── */
+function RecordPaymentModal({ open, patient, patients, onClose }) {
+  const { updatePatient } = usePatients();
+  const [targetId, setTargetId] = useState('');
+  const [form, setForm] = useState({ amount: '', mode: 'Cash', notes: '' });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      if (patient) {
+        setTargetId(patient.id);
+        setForm({ amount: patient.amountPaid || '', mode: patient.paymentMode || 'Cash', notes: '' });
+      } else {
+        setTargetId('');
+        setForm({ amount: '', mode: 'Cash', notes: '' });
+      }
+    }
+  }, [open, patient]);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!targetId || !form.amount) return;
+
+    setSaving(true);
+    await updatePatient(targetId, {
+      paymentStatus: 'Paid',
+      amountPaid: form.amount,
+      paymentMode: form.mode,
+    });
+    setSaving(false);
+    onClose();
+  }
+
+  if (!open) return null;
+
+  return createPortal(
+    <div className="bsm-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="bsm-modal" role="dialog">
+        <div className="bsm-header">
+          <div className="bsm-header__left">
+            <div className="bsm-icon"><DollarSign size={20} /></div>
+            <div>
+              <h2 className="bsm-title">Record Payment</h2>
+              <p className="bsm-sub">Update patient payment status</p>
+            </div>
+          </div>
+          <button className="bsm-close" onClick={onClose}><ChevronRight size={16} /></button>
+        </div>
+
+        <form className="bsm-form" onSubmit={handleSubmit}>
+          <div className="bsm-grid">
+            {!patient && (
+              <div className="bsm-field bsm-field--full">
+                <label className="bsm-label">Select Patient</label>
+                <select className="bsm-input bsm-select" value={targetId} onChange={e => setTargetId(e.target.value)} required>
+                  <option value="">Select a patient…</option>
+                  {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </div>
+            )}
+            
+            {patient && (
+              <div className="bsm-field bsm-field--full">
+                <label className="bsm-label">Patient</label>
+                <input className="bsm-input" value={patient.name} disabled />
+              </div>
+            )}
+
+            <div className="bsm-field">
+              <label className="bsm-label">Amount Paid</label>
+              <input className="bsm-input" type="text" placeholder="e.g. 5000" 
+                value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} required />
+            </div>
+
+            <div className="bsm-field">
+              <label className="bsm-label">Payment Mode</label>
+              <select className="bsm-input bsm-select" value={form.mode} onChange={e => setForm({...form, mode: e.target.value})}>
+                <option value="Cash">Cash</option>
+                <option value="Online / Bank Transfer">Online / Bank Transfer</option>
+                <option value="Card">Card</option>
+                <option value="UPI">UPI</option>
+              </select>
+            </div>
+
+            <div className="bsm-field bsm-field--full">
+              <label className="bsm-label">Reference / Notes</label>
+              <input className="bsm-input" type="text" placeholder="e.g. Txn ID or Receipt No." 
+                value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} />
+            </div>
+          </div>
+
+          <div className="bsm-footer">
+            <button type="button" className="bsm-btn bsm-btn--cancel" onClick={onClose}>Cancel</button>
+            <button type="submit" className="bsm-btn bsm-btn--save" disabled={saving}>
+              {saving ? 'Processing…' : 'Confirm Payment'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 function BookSlotModal({ open, patient, onClose }) {
   const { updatePatient } = usePatients();
   const [form, setForm] = useState(BOOK_INIT);
@@ -295,18 +399,19 @@ function StatCard({ label, value, change, Icon, color }) {
   );
 }
 
-function RecentPatients({ patients, loading, search, setSearch, onAddPatient, onView, onBookSlot }) {
+/* ─── Shared Patients Table Component ───────────────── */
+function PatientsTable({ patients, loading, search, setSearch, onAddPatient, onView, onBookSlot, onRecordPayment, title, sub }) {
   const filtered = patients.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.condition.toLowerCase().includes(search.toLowerCase())
+    (p.condition && p.condition.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
     <div className="sd-card">
       <div className="sd-card__head">
         <div>
-          <h3 className="sd-card__title">Recent Patients</h3>
-          <p className="sd-card__sub">Latest registered patients</p>
+          <h3 className="sd-card__title">{title || 'Patients'}</h3>
+          <p className="sd-card__sub">{sub || 'Manage patient records'}</p>
         </div>
         <div className="sd-card__actions">
           <div className="sd-search">
@@ -338,9 +443,8 @@ function RecentPatients({ patients, loading, search, setSearch, onAddPatient, on
               <th>Registered</th>
               <th>Payment</th>
               <th>Doctor</th>
-              <th>Consult Date</th>
-              <th>Consult Time</th>
               <th>Consult Status</th>
+              <th>Diet Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -349,20 +453,16 @@ function RecentPatients({ patients, loading, search, setSearch, onAddPatient, on
               <tr key={p.id}>
                 <td>
                   <div className="sd-patient-cell" onClick={() => onView(p.id)} style={{ cursor: 'pointer' }}>
-                    <div className="sd-patient-avatar">
-                      {p.name.charAt(0)}
-                    </div>
+                    <div className="sd-patient-avatar">{p.name.charAt(0)}</div>
                     <span className="sd-patient-name">{p.name}</span>
                   </div>
                 </td>
                 <td>{p.age}</td>
                 <td><span className="sd-condition">{p.condition}</span></td>
-                <td><span className={`sd-badge sd-badge--${p.status.toLowerCase()}`}>{p.status}</span></td>
-                <td className="sd-date">{p.date}</td>
-                <td><span className={`sd-badge sd-badge--pay-${p.paymentStatus.toLowerCase()}`}>{p.paymentStatus}</span></td>
+                <td><span className={`sd-badge sd-badge--${p.status?.toLowerCase() || 'pending'}`}>{p.status}</span></td>
+                <td className="sd-date">{p.date || p.createdDate}</td>
+                <td><span className={`sd-badge sd-badge--pay-${p.paymentStatus?.toLowerCase() || 'pending'}`}>{p.paymentStatus}</span></td>
                 <td className="sd-date">{p.doctor || '—'}</td>
-                <td className="sd-date">{p.consultationDate || '—'}</td>
-                <td className="sd-date">{p.consultationTime || '—'}</td>
                 <td>
                   {p.consultStatus
                     ? <span className={`sd-badge sd-badge--cs-${p.consultStatus.toLowerCase().replace(' ', '-')}`}>{p.consultStatus}</span>
@@ -370,30 +470,24 @@ function RecentPatients({ patients, loading, search, setSearch, onAddPatient, on
                   }
                 </td>
                 <td>
+                  <span className={`sd-badge sd-badge--diet-${p.dietStatus?.toLowerCase() || 'pending'}`}>{p.dietStatus || 'Pending'}</span>
+                </td>
+                <td>
                   <div className="sd-row-actions">
                     <button className="sd-icon-btn" title="View" onClick={() => onView(p.id)}><Eye size={14} /></button>
                     <button className="sd-icon-btn" title="Book Slot" onClick={() => onBookSlot(p)}><Calendar size={14} /></button>
+                    <button className="sd-icon-btn sd-icon-btn--pay" title="Record Payment" onClick={() => onRecordPayment(p)}><CreditCard size={14} /></button>
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && (
+        {filtered.length === 0 && !loading && (
           <div className="sd-empty">
-            {patients.length === 0 ? (
-              <>
-                <Users size={40} className="sd-empty__icon" />
-                <p className="sd-empty__title">No patients yet</p>
-                <p className="sd-empty__sub">Click <strong>+ Add Patient</strong> to register the first patient.</p>
-              </>
-            ) : (
-              <>
-                <Search size={40} className="sd-empty__icon" />
-                <p className="sd-empty__title">No results found</p>
-                <p className="sd-empty__sub">No patients match <em>"{search}"</em>. Try a different search.</p>
-              </>
-            )}
+            <Search size={40} className="sd-empty__icon" />
+            <p className="sd-empty__title">No results found</p>
+            <p className="sd-empty__sub">Try adjusting your search criteria.</p>
           </div>
         )}
       </div>
@@ -401,12 +495,34 @@ function RecentPatients({ patients, loading, search, setSearch, onAddPatient, on
   );
 }
 
+/* ─── Dashboard View ────────────────────────────────── */
+function DashboardView({ stats, onAddPatient, onRecordPayment, patients, loading, search, setSearch, navigate, setBookPatient, setBookSlotOpen, setPayModalOpen, setPayPatient }) {
+  return (
+    <div className="sd-content">
+      <div className="sd-stats-row">
+        {stats.map(s => <StatCard key={s.label} {...s} />)}
+      </div>
+      <QuickActions onAddPatient={onAddPatient} onRecordPayment={onRecordPayment} />
+      <PatientsTable 
+        title="Recent Patients"
+        sub="Latest registered patients"
+        patients={patients.slice(0, 5)} 
+        loading={loading} 
+        search={search} 
+        setSearch={setSearch} 
+        onAddPatient={onAddPatient} 
+        onView={(id) => navigate(`/staff/patients/${id}`)} 
+        onBookSlot={(p) => { setBookPatient(p); setBookSlotOpen(true); }} 
+        onRecordPayment={(p) => { setPayPatient(p); setPayModalOpen(true); }}
+      />
+    </div>
+  );
+}
 
-
-function QuickActions({ onAddPatient }) {
+function QuickActions({ onAddPatient, onRecordPayment }) {
   const actions = [
     { label: 'Register New Patient', Icon: UserPlus, color: 'blue', onClick: onAddPatient },
-    { label: 'Record Payment', Icon: DollarSign, color: 'green', onClick: undefined },
+    { label: 'Record Payment', Icon: DollarSign, color: 'green', onClick: () => onRecordPayment() },
     { label: 'View Reports', Icon: BarChart3, color: 'amber', onClick: undefined },
   ];
 
@@ -438,6 +554,108 @@ export default function StaffDashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [bookSlotOpen, setBookSlotOpen] = useState(false);
   const [bookPatient, setBookPatient] = useState(null);
+  const [payModalOpen, setPayModalOpen] = useState(false);
+  const [payPatient, setPayPatient] = useState(null);
+
+  function renderContent() {
+    switch (active) {
+      case 'dashboard':
+        return (
+          <DashboardView 
+            stats={stats} 
+            onAddPatient={() => setModalOpen(true)} 
+            onRecordPayment={() => setPayModalOpen(true)}
+            patients={patients} 
+            loading={loading} 
+            search={search} 
+            setSearch={setSearch} 
+            navigate={navigate} 
+            setBookPatient={setBookPatient} 
+            setBookSlotOpen={setBookSlotOpen}
+            setPayModalOpen={setPayModalOpen}
+            setPayPatient={setPayPatient}
+          />
+        );
+      case 'patients':
+        return (
+          <div className="sd-content">
+            <PatientsTable 
+              title="All Patients" 
+              sub="Complete database of patients"
+              patients={patients} 
+              loading={loading} 
+              search={search} 
+              setSearch={setSearch} 
+              onView={(id) => navigate(`/staff/patients/${id}`)} 
+              onBookSlot={(p) => { setBookPatient(p); setBookSlotOpen(true); }} 
+            />
+          </div>
+        );
+      case 'consults':
+        return (
+          <div className="sd-content">
+            <PatientsTable 
+              title="Consultations" 
+              sub="Track scheduled and pending consultations"
+              patients={patients.filter(p => p.consultStatus && p.consultStatus !== 'Completed')} 
+              loading={loading} 
+              search={search} 
+              setSearch={setSearch} 
+              onView={(id) => navigate(`/staff/patients/${id}`)} 
+              onBookSlot={(p) => { setBookPatient(p); setBookSlotOpen(true); }} 
+            />
+          </div>
+        );
+      case 'payments':
+        return (
+          <div className="sd-content">
+            <PatientsTable 
+              title="Financials & Payments" 
+              sub="Awaiting and confirmed payments"
+              patients={patients.filter(p => p.paymentStatus?.toLowerCase() === 'pending' || p.paymentStatus?.toLowerCase() === 'overdue')} 
+              loading={loading} 
+              search={search} 
+              setSearch={setSearch} 
+              onView={(id) => navigate(`/staff/patients/${id}`)} 
+              onBookSlot={(p) => { setBookPatient(p); setBookSlotOpen(true); }} 
+            />
+          </div>
+        );
+      case 'diet':
+        return (
+          <div className="sd-content">
+            <PatientsTable 
+              title="Diet Plan Status" 
+              sub="Monitoring diet plan progress"
+              patients={patients.filter(p => p.dietStatus?.toLowerCase() !== 'sent')} 
+              loading={loading} 
+              search={search} 
+              setSearch={setSearch} 
+              onView={(id) => navigate(`/staff/patients/${id}`)} 
+              onBookSlot={(p) => { setBookPatient(p); setBookSlotOpen(true); }} 
+            />
+          </div>
+        );
+      case 'reports':
+        return (
+          <div className="sd-content">
+            <PatientsTable 
+              title="Patient Reports" 
+              sub="Medical documentation and lab reports"
+              patients={patients.filter(p => p.reports && p.reports.length > 0)} 
+              loading={loading} 
+              search={search} 
+              setSearch={setSearch} 
+              onView={(id) => navigate(`/staff/patients/${id}`)} 
+              onBookSlot={(p) => { setBookPatient(p); setBookSlotOpen(true); }} 
+              onRecordPayment={(p) => { setPayPatient(p); setPayModalOpen(true); }}
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
+  }
 
   return (
     <div className="sd-layout">
@@ -452,7 +670,7 @@ export default function StaffDashboard() {
         {/* Top bar */}
         <header className="sd-topbar">
           <div>
-            <h1 className="sd-topbar__title">Staff Dashboard</h1>
+            <h1 className="sd-topbar__title">{NAV_ITEMS.find(i => i.key === active)?.label || 'Dashboard'}</h1>
             <p className="sd-topbar__date">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>
           </div>
           <div className="sd-topbar__right">
@@ -467,19 +685,7 @@ export default function StaffDashboard() {
           </div>
         </header>
 
-        {/* Content */}
-        <div className="sd-content">
-          {/* Stats row */}
-          <div className="sd-stats-row">
-            {stats.map(s => <StatCard key={s.label} {...s} />)}
-          </div>
-
-          {/* Quick actions */}
-          <QuickActions onAddPatient={() => setModalOpen(true)} />
-
-          {/* Patients table */}
-          <RecentPatients patients={patients} loading={loading} search={search} setSearch={setSearch} onAddPatient={() => setModalOpen(true)} onView={(id) => navigate(`/staff/patients/${id}`)} onBookSlot={(p) => { setBookPatient(p); setBookSlotOpen(true); }} />
-        </div>
+        {renderContent()}
       </div>
 
       <AddPatientModal
@@ -492,6 +698,12 @@ export default function StaffDashboard() {
         }}
       />
       <BookSlotModal open={bookSlotOpen} patient={bookPatient} onClose={() => { setBookSlotOpen(false); setBookPatient(null); }} />
+      <RecordPaymentModal 
+        open={payModalOpen} 
+        patient={payPatient} 
+        patients={patients}
+        onClose={() => { setPayModalOpen(false); setPayPatient(null); }} 
+      />
     </div>
   );
 }

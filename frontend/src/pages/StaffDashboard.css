@@ -569,7 +569,20 @@
 .sd-icon-btn:hover {
   background: #eff6ff;
   border-color: #bfdbfe;
+  color: #1e5799;
 }
+
+.sd-icon-btn--pay:hover {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #16a34a;
+}
+
+/* Diet Plan status badges */
+.sd-badge--diet-pending     { background: #fef9c3; color: #ca8a04; }
+.sd-badge--diet-sent        { background: #dcfce7; color: #16a34a; }
+.sd-badge--diet-in-progress { background: #dbeafe; color: #1e5799; }
+.sd-badge--diet-review      { background: #ffedd5; color: #ea580c; }
 
 .sd-empty {
   text-align: center;
