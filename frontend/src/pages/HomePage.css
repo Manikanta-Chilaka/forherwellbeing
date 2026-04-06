@@ -591,8 +591,8 @@
 
 .hiw__steps {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
   position: relative;
 }
 
@@ -958,9 +958,7 @@
   .contact__inner { flex-direction: column; }
 
   .hiw__steps {
-    grid-template-columns: 1fr;
-    max-width: 480px;
-    margin: 0 auto;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .sp__grid {
@@ -978,4 +976,6 @@
   .footer__inner { gap: 2.5rem; }
 
   .sp__grid { grid-template-columns: 1fr; }
+
+  .hiw__steps { grid-template-columns: 1fr; }
 }
