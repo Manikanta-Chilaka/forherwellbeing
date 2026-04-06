@@ -391,25 +391,22 @@ export default function CreateDietPlan() {
           <p className="cdp-page-sub">Build a personalised nutrition plan for the patient below.</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          {labMarkers.length > 0 && (
-            <button
-              className={`cdp-btn cdp-btn--primary ${generatingAI ? 'cdp-btn--ai-loading' : ''}`}
-              onClick={handleGenerateAIDiet}
-              disabled={generatingAI}
-              style={{ background: 'linear-gradient(135deg, #7c3f7b, #a855a8)' }}
-            >
-              {generatingAI ? (
-                <><span className="cdp-spinner" /> Generating Plan...</>
-              ) : (
-                <>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                  </svg>
-                  ✨ Generate AI Diet Plan
-                </>
-              )}
-            </button>
-          )}
+          <button
+            className={`cdp-btn cdp-btn--ai ${generatingAI ? 'cdp-btn--ai-loading' : ''}`}
+            onClick={handleGenerateAIDiet}
+            disabled={generatingAI}
+          >
+            {generatingAI ? (
+              <><span className="cdp-spinner" /> Generating Plan...</>
+            ) : (
+              <>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                {labMarkers.length > 0 ? '✨ Generate AI Plan (with Lab Results)' : '✨ Generate AI Diet Plan'}
+              </>
+            )}
+          </button>
           <button className="cdp-btn cdp-btn--ghost cdp-back-btn" onClick={() => navigate(-1)}>← Back</button>
         </div>
       </div>
