@@ -18,12 +18,9 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  TrendingUp,
   Clock,
-  AlertTriangle,
   UserPlus,
   DollarSign,
-  FileText,
   CheckCircle
 } from 'lucide-react';
 import './StaffDashboard.css';
