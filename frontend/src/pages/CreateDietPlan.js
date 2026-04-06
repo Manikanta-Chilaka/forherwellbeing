@@ -5,6 +5,7 @@ import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import { usePatients } from '../context/PatientsContext';
 import { getTemplate } from '../data/dietTemplates';
 import { supabase } from '../lib/supabaseClient';
+import { analyzeLabReports, generateAIDietPlan } from '../lib/geminiService';
 import DietPlanPDF from '../components/DietPlanPDF';
 import './CreateDietPlan.css';
 
@@ -102,6 +103,95 @@ function SendModal({ open, onClose, onSend, defaultEmail }) {
   );
 }
 
+/* ─── Lab Analysis Panel ─────────────────────────────── */
+const STATUS_STYLES = {
+  OPTIMAL:      { color: '#16a34a', bg: '#dcfce7' },
+  LOW:          { color: '#2563eb', bg: '#dbeafe' },
+  HIGH:         { color: '#ea580c', bg: '#ffedd5' },
+  'LOW-NORMAL': { color: '#7c3aed', bg: '#f5f3ff' },
+  'HIGH-NORMAL':{ color: '#d97706', bg: '#fef9c3' },
+  BORDERLINE:   { color: '#d97706', bg: '#fef9c3' },
+};
+
+function LabAnalysisPanel({ reports, onMarkersAnalyzed, markers, analyzing }) {
+  const imageReports = reports.filter(r =>
+    r.url && (r.type?.startsWith('image/') || /\.(jpg|jpeg|png)$/i.test(r.name))
+  );
+  const hasReports = reports.length > 0;
+
+  return (
+    <div className="cdp-lab-panel">
+      <div className="cdp-lab-panel__header">
+        <div className="cdp-lab-panel__title-row">
+          <span className="cdp-lab-panel__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+              <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/>
+            </svg>
+          </span>
+          <div>
+            <h3 className="cdp-lab-panel__title">Lab Report Analysis</h3>
+            <p className="cdp-lab-panel__sub">
+              {hasReports
+                ? `${reports.length} report(s) uploaded — AI will analyze and extract all lab markers`
+                : 'No reports uploaded yet. Ask staff to upload reports first.'}
+            </p>
+          </div>
+        </div>
+        {hasReports && (
+          <button
+            className={`cdp-btn cdp-btn--ai ${analyzing ? 'cdp-btn--ai-loading' : ''}`}
+            onClick={() => onMarkersAnalyzed(imageReports.length > 0 ? imageReports : reports)}
+            disabled={analyzing}
+          >
+            {analyzing ? (
+              <><span className="cdp-spinner" />  Analyzing Reports...</>
+            ) : (
+              <>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                {markers.length > 0 ? 'Re-Analyze Reports' : 'Analyze Lab Reports'}
+              </>
+            )}
+          </button>
+        )}
+      </div>
+
+      {markers.length > 0 && (
+        <div className="cdp-lab-table-wrap">
+          <table className="cdp-lab-table">
+            <thead>
+              <tr>
+                <th>Marker</th>
+                <th>Value</th>
+                <th>Status</th>
+                <th>Clinical Significance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {markers.map((m, i) => {
+                const style = STATUS_STYLES[m.status] || { color: '#64748b', bg: '#f1f5f9' };
+                return (
+                  <tr key={i} style={{ backgroundColor: i % 2 === 0 ? '#fff' : '#fdf8fd' }}>
+                    <td className="cdp-lab-marker">{m.marker}</td>
+                    <td className="cdp-lab-value" style={{ color: style.color }}>{m.value}</td>
+                    <td>
+                      <span className="cdp-lab-status" style={{ color: style.color, backgroundColor: style.bg }}>
+                        {m.status}
+                      </span>
+                    </td>
+                    <td className="cdp-lab-significance">{m.significance}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Toast ──────────────────────────────────────────── */
 function Toast({ visible }) {
   return (
@@ -155,10 +245,14 @@ export default function CreateDietPlan() {
   const [meals, setMeals] = useState(seed.meals);
   const [restrictions, setRestrictions] = useState(seed.restrictions);
   const [doctorNotes, setDoctorNotes] = useState(seed.doctorNotes);
-  const [files, setFiles] = useState({ chart: null, pdf: null });
-  const [dragOver, setDragOver] = useState(null);
-  const [sendOpen, setSendOpen] = useState(false);
-  const [toast, setToast] = useState(false);
+  const [files, setFiles]         = useState({ chart: null, pdf: null });
+  const [dragOver, setDragOver]   = useState(null);
+  const [sendOpen, setSendOpen]   = useState(false);
+  const [toast, setToast]         = useState(false);
+  const [labMarkers, setLabMarkers] = useState([]);
+  const [analyzing, setAnalyzing]   = useState(false);
+  const [generatingAI, setGeneratingAI] = useState(false);
+  const [aiError, setAiError]       = useState('');
 
   /* helpers */
   const setPlanField = (k, v) => setPlan(prev => ({ ...prev, [k]: v }));
@@ -168,6 +262,49 @@ export default function CreateDietPlan() {
   const showToast = () => {
     setToast(true);
     setTimeout(() => setToast(false), 3500);
+  };
+
+  /* ── Analyze lab reports via Gemini Vision ── */
+  const handleAnalyzeReports = async (reportsToAnalyze) => {
+    setAnalyzing(true);
+    setAiError('');
+    try {
+      const urls = reportsToAnalyze.map(r => r.url);
+      const markers = await analyzeLabReports(urls);
+      setLabMarkers(markers);
+    } catch (err) {
+      setAiError('Could not analyze reports: ' + err.message);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  /* ── Generate full diet plan via Gemini ── */
+  const handleGenerateAIDiet = async () => {
+    setGeneratingAI(true);
+    setAiError('');
+    try {
+      const result = await generateAIDietPlan(patient, labMarkers);
+      if (result.meals) {
+        setMeals(prev => {
+          const updated = { ...prev };
+          Object.keys(result.meals).forEach(key => {
+            if (updated[key] !== undefined) updated[key] = result.meals[key];
+          });
+          return updated;
+        });
+      }
+      if (result.restrictions) setRestrictions(result.restrictions);
+      if (result.doctorNotes)  setDoctorNotes(result.doctorNotes);
+      if (result.planTitle)    setPlanField('title', result.planTitle);
+      if (result.calorieTarget) setPlanField('calorieTarget', result.calorieTarget);
+      if (result.duration)     setPlanField('duration', result.duration);
+      showToast();
+    } catch (err) {
+      setAiError('AI generation failed: ' + err.message);
+    } finally {
+      setGeneratingAI(false);
+    }
   };
 
   const handleSaveDraft = () => {
@@ -253,8 +390,35 @@ export default function CreateDietPlan() {
           <h1 className="cdp-page-title">Create Diet Plan</h1>
           <p className="cdp-page-sub">Build a personalised nutrition plan for the patient below.</p>
         </div>
-        <button className="cdp-btn cdp-btn--ghost cdp-back-btn" onClick={() => navigate(-1)}>← Back</button>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          {labMarkers.length > 0 && (
+            <button
+              className={`cdp-btn cdp-btn--primary ${generatingAI ? 'cdp-btn--ai-loading' : ''}`}
+              onClick={handleGenerateAIDiet}
+              disabled={generatingAI}
+              style={{ background: 'linear-gradient(135deg, #7c3f7b, #a855a8)' }}
+            >
+              {generatingAI ? (
+                <><span className="cdp-spinner" /> Generating Plan...</>
+              ) : (
+                <>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                  </svg>
+                  ✨ Generate AI Diet Plan
+                </>
+              )}
+            </button>
+          )}
+          <button className="cdp-btn cdp-btn--ghost cdp-back-btn" onClick={() => navigate(-1)}>← Back</button>
+        </div>
       </div>
+
+      {aiError && (
+        <div style={{ margin: '0 0 1rem', padding: '0.75rem 1rem', background: '#fee2e2', borderRadius: '8px', color: '#dc2626', fontSize: '0.85rem' }}>
+          ⚠️ {aiError}
+        </div>
+      )}
 
       {/* ── Patient Summary Card ── */}
       <div className="cdp-patient-card">
@@ -281,6 +445,14 @@ export default function CreateDietPlan() {
           ))}
         </div>
       </div>
+
+      {/* ── Lab Report Analysis Panel ── */}
+      <LabAnalysisPanel
+        reports={patient?.reports || []}
+        markers={labMarkers}
+        analyzing={analyzing}
+        onMarkersAnalyzed={handleAnalyzeReports}
+      />
 
       {/* ── Form ── */}
       <div className="cdp-body">
