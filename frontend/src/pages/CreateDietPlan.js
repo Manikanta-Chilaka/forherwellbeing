@@ -115,12 +115,38 @@ const STATUS_STYLES = {
 
 function LabAnalysisPanel({ reports, onMarkersAnalyzed, markers, analyzing }) {
   const imageReports = reports.filter(r =>
-    r.url && (r.type?.startsWith('image/') || /\.(jpg|jpeg|png)$/i.test(r.name))
+    r.url && (r.type?.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(r.name))
   );
   const hasReports = reports.length > 0;
 
+  function formatSize(bytes) {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function getFileIcon(report) {
+    if (report.type?.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(report.name)) {
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+      );
+    }
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
+    );
+  }
+
   return (
     <div className="cdp-lab-panel">
+      {/* Header */}
       <div className="cdp-lab-panel__header">
         <div className="cdp-lab-panel__title-row">
           <span className="cdp-lab-panel__icon">
@@ -132,8 +158,8 @@ function LabAnalysisPanel({ reports, onMarkersAnalyzed, markers, analyzing }) {
             <h3 className="cdp-lab-panel__title">Lab Report Analysis</h3>
             <p className="cdp-lab-panel__sub">
               {hasReports
-                ? `${reports.length} report(s) uploaded — AI will analyze and extract all lab markers`
-                : 'No reports uploaded yet. Ask staff to upload reports first.'}
+                ? `${reports.length} report(s) uploaded — Click "Analyze" to extract lab markers automatically`
+                : 'No reports uploaded yet. Ask staff to upload reports from the Patient Profile page.'}
             </p>
           </div>
         </div>
@@ -144,19 +170,61 @@ function LabAnalysisPanel({ reports, onMarkersAnalyzed, markers, analyzing }) {
             disabled={analyzing}
           >
             {analyzing ? (
-              <><span className="cdp-spinner" />  Analyzing Reports...</>
+              <><span className="cdp-spinner" /> Analyzing...</>
             ) : (
               <>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
-                {markers.length > 0 ? 'Re-Analyze Reports' : 'Analyze Lab Reports'}
+                {markers.length > 0 ? 'Re-Analyze' : 'Analyze Lab Reports'}
               </>
             )}
           </button>
         )}
       </div>
 
+      {/* Uploaded Files Grid */}
+      {hasReports && (
+        <div className="cdp-lab-files">
+          <p className="cdp-lab-files__label">
+            📎 Uploaded Reports — click any file to view, then click "Analyze Lab Reports" to extract markers
+          </p>
+          <div className="cdp-lab-files__grid">
+            {reports.map((r, i) => (
+              <a
+                key={i}
+                href={r.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cdp-lab-file-card"
+                title={`Open ${r.name}`}
+              >
+                <span className="cdp-lab-file-card__icon">{getFileIcon(r)}</span>
+                <div className="cdp-lab-file-card__info">
+                  <span className="cdp-lab-file-card__name">{r.name}</span>
+                  <span className="cdp-lab-file-card__meta">
+                    {formatSize(r.size)}
+                    {r.uploadedAt && ` · ${new Date(r.uploadedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`}
+                  </span>
+                </div>
+                <span className="cdp-lab-file-card__open">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                    <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                  </svg>
+                </span>
+              </a>
+            ))}
+          </div>
+          {imageReports.length === 0 && (
+            <p className="cdp-lab-files__warn">
+              ⚠️ No image files found. AI analysis works best with JPG/PNG images of lab reports. PDFs are not yet supported for AI reading.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Results Table */}
       {markers.length > 0 && (
         <div className="cdp-lab-table-wrap">
           <table className="cdp-lab-table">

@@ -608,6 +608,95 @@
   margin: 0;
 }
 
+/* ─── Uploaded Files in Lab Panel ─────────────────────── */
+.cdp-lab-files {
+  padding: 16px 24px 20px;
+  border-bottom: 1px solid #f0e8f0;
+  background: #fdf8fd;
+}
+
+.cdp-lab-files__label {
+  font-size: 12px;
+  color: #7c3f7b;
+  font-weight: 600;
+  margin: 0 0 12px;
+  letter-spacing: 0.01em;
+}
+
+.cdp-lab-files__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cdp-lab-file-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1.5px solid #e8dff0;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #1e293b;
+  transition: all 0.15s;
+  min-width: 200px;
+  max-width: 280px;
+}
+
+.cdp-lab-file-card:hover {
+  border-color: #a855a8;
+  background: #fdf4fd;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124,63,123,0.12);
+}
+
+.cdp-lab-file-card__icon {
+  color: #7c3f7b;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cdp-lab-file-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cdp-lab-file-card__name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cdp-lab-file-card__meta {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.cdp-lab-file-card__open {
+  color: #a855a8;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.cdp-lab-files__warn {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: #d97706;
+  background: #fef9c3;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #fde68a;
+}
+
 /* ─── AI Buttons ─────────────────────────────────────── */
 .cdp-btn--ai {
   background: linear-gradient(135deg, #7c3f7b, #a855a8);
