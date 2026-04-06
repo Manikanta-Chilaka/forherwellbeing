@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { supabase } from '../lib/supabaseClient';
 /* Reuse AddPatientModal styles — same design language */
 import './AddPatientModal.css';
 import './EditPatientModal.css';
@@ -123,16 +124,22 @@ function ChangedDot({ original, current }) {
 
 /* ─── Main Modal ─────────────────────────────────────── */
 export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
-  const [form, setForm]     = useState(() => seedForm(patient));
-  const [errors, setErrors] = useState({});
-  const [saving, setSaving] = useState(false);
-  const bodyRef             = useRef(null);
+  const [form, setForm]         = useState(() => seedForm(patient));
+  const [errors, setErrors]     = useState({});
+  const [saving, setSaving]     = useState(false);
+  const [newReports, setNewReports] = useState([]);
+  const [existingReports, setExistingReports] = useState([]);
+  const [uploadDrag, setUploadDrag] = useState(false);
+  const reportInputRef          = useRef(null);
+  const bodyRef                 = useRef(null);
 
   /* Re-seed when patient prop changes (different patient opened) */
   useEffect(() => {
     if (patient) {
       setForm(seedForm(patient));
       setErrors({});
+      setNewReports([]);
+      setExistingReports(patient.reports || []);
     }
   }, [patient]);
 
@@ -173,7 +180,24 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
       return;
     }
     setSaving(true);
-    const result = await onUpdate(patient.id, form);
+
+    // Upload any new report files
+    const uploadedNew = [];
+    for (const file of newReports) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `patient-reports/${fileName}`;
+      const { error: uploadErr } = await supabase.storage.from('reports').upload(filePath, file);
+      if (!uploadErr) {
+        const { data: { publicUrl } } = supabase.storage.from('reports').getPublicUrl(filePath);
+        uploadedNew.push({ name: file.name, url: publicUrl, size: file.size, type: file.type, uploadedAt: new Date().toISOString() });
+      }
+    }
+
+    // Merge existing (possibly pruned) + newly uploaded
+    const mergedReports = [...existingReports, ...uploadedNew];
+
+    const result = await onUpdate(patient.id, { ...form, reports: mergedReports });
     setSaving(false);
     if (result?.success === false) {
       setErrors({ submit: result.error || 'Failed to update patient. Please try again.' });
@@ -542,7 +566,92 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
               </div>
             </section>
 
-          </div>
+            {/* ── 7. Lab Reports Upload ── */}
+            <section className="apm-section apm-section--last">
+              <SectionHeader step="7" icon="🧪" title="Lab Reports" subtitle="Upload or manage patient lab reports" />
+              
+              {/* Existing Reports */}
+              {existingReports.length > 0 && (
+                <div className="epm-reports-existing">
+                  <p className="epm-reports-label">Uploaded Reports ({existingReports.length})</p>
+                  <div className="epm-reports-list">
+                    {existingReports.map((r, i) => (
+                      <div key={i} className="epm-report-row">
+                        <span className="epm-report-icon">📄</span>
+                        <div className="epm-report-info">
+                          <a href={r.url} target="_blank" rel="noopener noreferrer" className="epm-report-name">{r.name}</a>
+                          <span className="epm-report-meta">
+                            {r.size ? `${(r.size / 1024).toFixed(1)} KB` : ''}
+                            {r.uploadedAt ? ` · ${new Date(r.uploadedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}` : ''}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className="epm-report-delete"
+                          title="Remove this report"
+                          onClick={() => setExistingReports(prev => prev.filter((_, idx) => idx !== i))}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* New File Upload Zone */}
+              <div
+                className={`epm-dropzone ${uploadDrag ? 'epm-dropzone--over' : ''}`}
+                onDragOver={e => { e.preventDefault(); setUploadDrag(true); }}
+                onDragLeave={() => setUploadDrag(false)}
+                onDrop={e => {
+                  e.preventDefault();
+                  setUploadDrag(false);
+                  const files = Array.from(e.dataTransfer.files);
+                  setNewReports(prev => [...prev, ...files]);
+                }}
+                onClick={() => reportInputRef.current?.click()}
+              >
+                <input
+                  ref={reportInputRef}
+                  type="file"
+                  accept="image/*,.pdf"
+                  multiple
+                  hidden
+                  onChange={e => {
+                    const files = Array.from(e.target.files);
+                    setNewReports(prev => [...prev, ...files]);
+                    e.target.value = '';
+                  }}
+                />
+                <span style={{ fontSize: '28px' }}>📁</span>
+                <p className="epm-dropzone-title">Drag & drop or click to upload reports</p>
+                <p className="epm-dropzone-hint">JPG, PNG, PDF accepted · Multiple files allowed</p>
+              </div>
+
+              {/* Preview new files */}
+              {newReports.length > 0 && (
+                <div className="epm-reports-new">
+                  <p className="epm-reports-label">New files to upload ({newReports.length})</p>
+                  <div className="epm-reports-list">
+                    {newReports.map((f, i) => (
+                      <div key={i} className="epm-report-row epm-report-row--new">
+                        <span className="epm-report-icon">🆕</span>
+                        <div className="epm-report-info">
+                          <span className="epm-report-name">{f.name}</span>
+                          <span className="epm-report-meta">{(f.size / 1024).toFixed(1)} KB</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="epm-report-delete"
+                          onClick={() => setNewReports(prev => prev.filter((_, idx) => idx !== i))}
+                        >✕</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
 
           {/* ── Footer ── */}
           <div className="apm-footer">
@@ -560,6 +669,7 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
                 }
               </button>
             </div>
+          </div>
           </div>
         </form>
 

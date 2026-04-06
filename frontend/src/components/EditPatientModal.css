@@ -84,3 +84,123 @@
 .epm-btn-update:hover:not(:disabled) {
   box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
 }
+
+/* ── Lab Report Upload Section ───────────────────────────── */
+.epm-reports-existing,
+.epm-reports-new {
+  margin-bottom: 14px;
+}
+
+.epm-reports-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 8px;
+}
+
+.epm-reports-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.epm-report-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: background 0.12s;
+}
+
+.epm-report-row--new {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.epm-report-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.epm-report-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.epm-report-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+}
+
+a.epm-report-name:hover { text-decoration: underline; color: #0d9488; }
+
+.epm-report-meta {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.epm-report-delete {
+  background: #fee2e2;
+  border: none;
+  color: #dc2626;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+
+.epm-report-delete:hover { background: #fca5a5; }
+
+/* ── Dropzone ─────────────────────────────────────────────── */
+.epm-dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  background: #f8fafc;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.epm-dropzone:hover,
+.epm-dropzone--over {
+  border-color: #0d9488;
+  background: #f0fdfa;
+}
+
+.epm-dropzone-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0;
+}
+
+.epm-dropzone-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+}
