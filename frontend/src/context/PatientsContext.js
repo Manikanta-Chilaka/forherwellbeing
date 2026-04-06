@@ -52,6 +52,7 @@ function fromDb(row) {
       ? new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
       : '—',
 
+    reports:            row.reports || [],
     consultHistory:     [],   // loaded separately if needed
   };
 }
@@ -99,6 +100,7 @@ function toDb(fields) {
     amountPaid:         'amount_paid',
 
     status:             'patient_status',
+    reports:            'reports',
   };
 
   const dbFields = {};
@@ -162,16 +164,53 @@ export function PatientsProvider({ children }) {
     return { success: true };
   }
 
-  /* ── Add a new patient ── */
+  /* ── Add a new patient with report uploads ── */
   async function addPatient(newPatient) {
+    const uploadedReports = [];
+
+    // 1. Upload reports to Supabase Storage if any
+    if (newPatient.reports && newPatient.reports.length > 0) {
+      for (const file of newPatient.reports) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+        const filePath = `patient-reports/${fileName}`;
+
+        const { data, error: uploadErr } = await supabase.storage
+          .from('reports')
+          .upload(filePath, file);
+
+        if (uploadErr) {
+          console.error('File upload error:', uploadErr.message);
+          // We can decide to continue or fail. Let's fail for now to ensure data integrity.
+          return { success: false, error: `Failed to upload ${file.name}: ${uploadErr.message}` };
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('reports')
+          .getPublicUrl(filePath);
+
+        uploadedReports.push({
+          name: file.name,
+          url: publicUrl,
+          size: file.size,
+          type: file.type,
+          uploadedAt: new Date().toISOString()
+        });
+      }
+    }
+
+    // 2. Prepare DB fields
     const dbFields = toDb({
       ...newPatient,
+      reports:       uploadedReports,
       dietStatus:    'Pending',
       consultStatus: 'Pending',
       status:        'Pending',
       paymentStatus: 'Pending',
     });
 
+    // 3. Insert into DB
     const { data, error: err } = await supabase
       .from('patients')
       .insert(dbFields)

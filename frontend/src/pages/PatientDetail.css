@@ -500,6 +500,106 @@
 .pd-not-found h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #0f172a; }
 .pd-not-found p  { font-size: 0.9rem; color: #64748b; margin-bottom: 1rem; }
 
+/* ── Reports Tab ────────────────────────────────────────── */
+.pd-empty-reports {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pd-reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.pd-report-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.pd-report-card:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transform: translateY(-1px);
+}
+
+.pd-report-icon {
+  width: 42px;
+  height: 42px;
+  background: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e5799;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  flex-shrink: 0;
+}
+
+.pd-report-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pd-report-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.15rem;
+}
+
+.pd-report-meta {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.pd-report-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.pd-report-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  transition: all 0.15s;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.pd-report-btn:hover {
+  background: #eff6ff;
+  color: #1e5799;
+  border-color: #bfdbfe;
+}
+
+.pd-report-btn--download:hover {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 960px) {
   .pd-body { flex-direction: column; padding: 1.25rem; }

@@ -2,6 +2,17 @@ import { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { usePatients } from '../context/PatientsContext';
 import EditPatientModal from '../components/EditPatientModal';
+import { 
+  FileText, 
+  ExternalLink, 
+  Download, 
+  LayoutDashboard, 
+  Stethoscope, 
+  Leaf, 
+  Utensils, 
+  Calendar,
+  FolderOpen
+} from 'lucide-react';
 import './PatientDetail.css';
 
 /* ─── Badge ─────────────────────────────────────────────── */
@@ -55,11 +66,12 @@ function Card({ title, icon, children }) {
 
 /* ─── Tabs ───────────────────────────────────────────────── */
 const TABS = [
-  { key: 'overview',     label: 'Overview',      icon: '📊' },
-  { key: 'medical',      label: 'Medical Info',  icon: '🩺' },
-  { key: 'lifestyle',    label: 'Lifestyle',     icon: '🌿' },
-  { key: 'food',         label: 'Food Habits',   icon: '🥗' },
-  { key: 'consultation', label: 'Consultation',  icon: '📅' },
+  { key: 'overview',     label: 'Overview',      icon: <LayoutDashboard size={18} /> },
+  { key: 'medical',      label: 'Medical Info',  icon: <Stethoscope size={18} /> },
+  { key: 'lifestyle',    label: 'Lifestyle',     icon: <Leaf size={18} /> },
+  { key: 'food',         label: 'Food Habits',   icon: <Utensils size={18} /> },
+  { key: 'consultation', label: 'Consultation',  icon: <Calendar size={18} /> },
+  { key: 'reports',      label: 'Reports',        icon: <FolderOpen size={18} /> },
 ];
 
 /* ─── Tab: Overview ──────────────────────────────────────── */
@@ -151,11 +163,71 @@ function FoodTab({ p }) {
   );
 }
 
+/* ─── Tab: Reports ───────────────────────────────────────── */
+function ReportsTab({ p }) {
+  const reports = p.reports || [];
+
+  const formatSize = (bytes) => {
+    if (!bytes) return '0 B';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  return (
+    <div className="pd-tab-content">
+      <Card title="Medical Reports & Attachments" icon={<FolderOpen size={18} />}>
+        {reports.length === 0 ? (
+          <div className="pd-empty-reports">
+            <FileText size={48} />
+            <p>No reports uploaded for this patient.</p>
+          </div>
+        ) : (
+          <div className="pd-reports-grid">
+            {reports.map((report, i) => (
+              <div key={i} className="pd-report-card">
+                <div className="pd-report-icon">
+                  <FileText size={24} />
+                </div>
+                <div className="pd-report-info">
+                  <p className="pd-report-name" title={report.name}>{report.name}</p>
+                  <p className="pd-report-meta">
+                    {formatSize(report.size)} • {new Date(report.uploadedAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="pd-report-actions">
+                  <a 
+                    href={report.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="pd-report-btn"
+                    title="View Report"
+                  >
+                    <ExternalLink size={16} />
+                  </a>
+                  <a 
+                    href={report.url} 
+                    download={report.name} 
+                    className="pd-report-btn pd-report-btn--download"
+                    title="Download"
+                  >
+                    <Download size={16} />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+
 /* ─── Tab: Consultation ──────────────────────────────────── */
 function ConsultationTab({ p }) {
   return (
     <div className="pd-tab-content">
-      <Card title="Current Consultation" icon="📅">
+      <Card title="Current Consultation" icon={<Calendar size={18} />}>
         <InfoRow label="Status"          value={p.consultStatus} badge />
         <InfoRow label="Assigned Doctor" value={p.doctor} />
         <InfoRow label="Date"            value={p.consultDate} />
@@ -165,7 +237,7 @@ function ConsultationTab({ p }) {
       </Card>
 
       {p.consultHistory?.length > 0 && (
-        <Card title="Consultation History" icon="📋">
+        <Card title="Consultation History" icon={<ClipboardList size={18} />}>
           <div className="pd-timeline">
             {p.consultHistory.map((c, i) => (
               <div key={i} className="pd-timeline-item">
@@ -272,6 +344,7 @@ export default function PatientDetail() {
       case 'lifestyle':    return <LifestyleTab      p={patient} />;
       case 'food':         return <FoodTab           p={patient} />;
       case 'consultation': return <ConsultationTab   p={patient} />;
+      case 'reports':      return <ReportsTab        p={patient} />;
       default:             return null;
     }
   };
