@@ -196,7 +196,7 @@ export function PatientsProvider({ children }) {
         const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
         const filePath = `patient-reports/${fileName}`;
 
-        const { data, error: uploadErr } = await supabase.storage
+        const { error: uploadErr } = await supabase.storage
           .from('reports')
           .upload(filePath, file);
 

@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { usePatients } from '../context/PatientsContext';
+import { supabase } from '../lib/supabaseClient';
 import EditPatientModal from '../components/EditPatientModal';
 import { 
   FileText, 
   ExternalLink, 
   Download,
   Trash2,
+  UploadCloud,
   LayoutDashboard, 
   Stethoscope, 
   Leaf, 
@@ -167,7 +169,9 @@ function FoodTab({ p }) {
 
 /* ─── Tab: Reports ───────────────────────────────────────── */
 function ReportsTab({ p, updatePatient }) {
-  const [deleting, setDeleting] = useState(null);
+  const [deleting, setDeleting]   = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef              = useRef(null);
   const reports = p.reports || [];
 
   const formatSize = (bytes) => {
@@ -185,13 +189,59 @@ function ReportsTab({ p, updatePatient }) {
     setDeleting(null);
   };
 
+  const handleUpload = async (files) => {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    const newUploaded = [];
+    for (const file of Array.from(files)) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `patient-reports/${fileName}`;
+      const { error: uploadErr } = await supabase.storage.from('reports').upload(filePath, file);
+      if (!uploadErr) {
+        const { data: { publicUrl } } = supabase.storage.from('reports').getPublicUrl(filePath);
+        newUploaded.push({ name: file.name, url: publicUrl, size: file.size, type: file.type, uploadedAt: new Date().toISOString() });
+      }
+    }
+    if (newUploaded.length > 0) {
+      await updatePatient(p.id, { reports: [...reports, ...newUploaded] });
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   return (
     <div className="pd-tab-content">
-      <Card title="Medical Reports & Attachments" icon={<FolderOpen size={18} />}>
+      <div className="pd-card">
+        {/* Card Header with Upload Button */}
+        <div className="pd-card__head pd-reports-head">
+          <span className="pd-card__icon"><FolderOpen size={18} /></span>
+          <h4 className="pd-card__title">Medical Reports & Attachments</h4>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,.pdf"
+            multiple
+            hidden
+            onChange={e => handleUpload(e.target.files)}
+          />
+          <button
+            className="pd-upload-btn"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            title="Upload new report"
+          >
+            {uploading
+              ? <><span className="pd-report-spinner" style={{ borderTopColor: '#fff' }} /> Uploading...</>
+              : <><UploadCloud size={15} /> Upload Report</>
+            }
+          </button>
+        </div>
+
         {reports.length === 0 ? (
           <div className="pd-empty-reports">
             <FileText size={48} />
-            <p>No reports uploaded for this patient.</p>
+            <p>No reports uploaded yet. Click <strong>Upload Report</strong> to add files.</p>
           </div>
         ) : (
           <div className="pd-reports-grid">
@@ -239,7 +289,7 @@ function ReportsTab({ p, updatePatient }) {
             ))}
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 }

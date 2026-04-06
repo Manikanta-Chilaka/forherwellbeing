@@ -1,16 +1,8 @@
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-/* ─── Analyze Lab Report Images ──────────────────────────
-   Sends report image URLs to Gemini Vision and returns
-   a structured array of lab markers.
-──────────────────────────────────────────────────────── */
-export async function analyzeLabReports(reportUrls) {
-  const imageParts = reportUrls.map(url => ({
-    inlineData: undefined,
-    fileData: { mimeType: 'image/jpeg', fileUri: url },
-  }));
 
+export async function analyzeLabReports(reportUrls) {
   // We'll use URL-based fetching instead of inline data
   const prompt = `You are a clinical nutritionist analyzing lab reports.
 Look at the provided lab report image(s) and extract ALL lab markers you can find.
