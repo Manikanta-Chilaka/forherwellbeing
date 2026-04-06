@@ -1,5 +1,10 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Calendar, Utensils, FolderOpen, BookOpen,
+  CreditCard, HeartHandshake, ArrowRight,
+  ClipboardCheck, UserCheck, Sparkles
+} from 'lucide-react';
 import doctorPhoto from '../assets/WhatsApp-Image-2025-07-02-at-1.11.59-PM.jpg';
 import Footer from '../components/Footer';
 import './HomePage.css';
@@ -55,6 +60,98 @@ function Hero() {
             <span className="hero__photo-badge-name">Dr. Ragadeepthi Ediga</span>
             <span className="hero__photo-badge-title">Women's Health & Nutrition Specialist</span>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── How it Works ──────────────────────────────────── */
+const HOW_STEPS = [
+  {
+    num: '01',
+    Icon: Calendar,
+    title: 'Book a Consultation',
+    desc: 'Reach out through our contact page or call us directly. Our care coordinator will confirm your slot within 24 hours.',
+  },
+  {
+    num: '02',
+    Icon: UserCheck,
+    title: 'Meet Your Specialist',
+    desc: 'Have a focused one-on-one session with Dr. Ragadeepthi to discuss your health history, concerns, and goals.',
+  },
+  {
+    num: '03',
+    Icon: Sparkles,
+    title: 'Receive Your Personalised Plan',
+    desc: 'Get a custom nutrition and wellness plan built specifically around your condition, lifestyle, and goals.',
+  },
+];
+
+function HowItWorks() {
+  return (
+    <section className="hiw">
+      <div className="section-inner">
+        <p className="section-eyebrow" style={{ textAlign: 'center' }}>Simple Process</p>
+        <h2 className="section-title" style={{ textAlign: 'center' }}>How It Works</h2>
+        <p className="hiw__sub">Getting started is straightforward. Three steps to expert, personalised care.</p>
+
+        <div className="hiw__steps">
+          {HOW_STEPS.map(({ num, Icon, title, desc }, i) => (
+            <div className="hiw-step" key={num}>
+              <div className="hiw-step__top">
+                <div className="hiw-step__num">{num}</div>
+                <div className="hiw-step__icon-wrap">
+                  <Icon size={26} strokeWidth={1.5} />
+                </div>
+              </div>
+              <h4 className="hiw-step__title">{title}</h4>
+              <p className="hiw-step__desc">{desc}</p>
+              {i < HOW_STEPS.length - 1 && <span className="hiw-step__connector" />}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Services Preview ───────────────────────────────── */
+const SERVICES = [
+  { Icon: Calendar,        title: 'Consultation Booking',     desc: 'Book one-on-one sessions with our specialist through a simple, guided process.' },
+  { Icon: Utensils,        title: 'Personalised Diet Plans',  desc: 'Doctor-crafted nutrition plans tailored to your specific health conditions and goals.' },
+  { Icon: FolderOpen,      title: 'Health Record Management', desc: 'Your health history securely stored and accessible to your care team at any time.' },
+  { Icon: BookOpen,        title: 'Autoimmune Resources',     desc: 'Curated guides and tools for PCOS, Thyroid, Lupus, Endometriosis, and more.' },
+  { Icon: CreditCard,      title: 'Transparent Payments',     desc: 'Clear consultation fee structure with full payment tracking — no hidden charges.' },
+  { Icon: HeartHandshake,  title: 'Ongoing Support',          desc: 'Continuous follow-up care from our dedicated team throughout your wellness journey.' },
+];
+
+function ServicesPreview() {
+  return (
+    <section className="sp">
+      <div className="section-inner">
+        <p className="section-eyebrow" style={{ textAlign: 'center' }}>What We Offer</p>
+        <h2 className="section-title" style={{ textAlign: 'center' }}>
+          Comprehensive Care,<br />Designed for Women
+        </h2>
+        <p className="sp__sub">Every service is built around one focus — your health, your way.</p>
+
+        <div className="sp__grid">
+          {SERVICES.map(({ Icon, title, desc }) => (
+            <div className="sp-card" key={title}>
+              <div className="sp-card__icon">
+                <Icon size={22} strokeWidth={1.5} />
+              </div>
+              <h4 className="sp-card__title">{title}</h4>
+              <p className="sp-card__desc">{desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="sp__cta">
+          <Link to="/services" className="sp__link">
+            View All Services <ArrowRight size={16} />
+          </Link>
         </div>
       </div>
     </section>
@@ -136,6 +233,8 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <HowItWorks />
+      <ServicesPreview />
       <Testimonials />
       <CTABanner />
       <Footer />
