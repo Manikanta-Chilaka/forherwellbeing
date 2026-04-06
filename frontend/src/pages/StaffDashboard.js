@@ -1,9 +1,32 @@
+
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import './StaffDashboard.css';
 import AddPatientModal from '../components/AddPatientModal';
 import { usePatients } from '../context/PatientsContext';
+import {
+  BarChart3,
+  Users,
+  ClipboardList,
+  CreditCard,
+  Utensils,
+  LayoutDashboard,
+  Bell,
+  Search,
+  Eye,
+  Calendar,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  TrendingUp,
+  Clock,
+  AlertTriangle,
+  UserPlus,
+  DollarSign,
+  FileText,
+  CheckCircle
+} from 'lucide-react';
+import './StaffDashboard.css';
 
 /* ─── Book Slot Modal ────────────────────────────────── */
 const BOOK_INIT = {
@@ -13,7 +36,7 @@ const BOOK_INIT = {
 
 function BookSlotModal({ open, patient, onClose }) {
   const { updatePatient } = usePatients();
-  const [form, setForm]   = useState(BOOK_INIT);
+  const [form, setForm] = useState(BOOK_INIT);
   const [saved, setSaved] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -24,9 +47,9 @@ function BookSlotModal({ open, patient, onClose }) {
         patientName: patient.name || '',
         consultDate: patient.consultationDate || '',
         consultTime: patient.consultationTime || '',
-        doctor:      patient.assignedDoctor || patient.doctor || 'Dr. Raga Deepthi',
-        type:        'Follow-up',
-        notes:       '',
+        doctor: patient.assignedDoctor || patient.doctor || 'Dr. Raga Deepthi',
+        type: 'Follow-up',
+        notes: '',
       });
     } else if (open && !patient) {
       setForm(BOOK_INIT);
@@ -58,20 +81,20 @@ function BookSlotModal({ open, patient, onClose }) {
     if (patient) {
       const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
       updatePatient(patient.id, {
-        consultationDate:   form.consultDate,
-        consultationTime:   form.consultTime,
-        assignedDoctor:     form.doctor,
-        doctor:             form.doctor,
-        consultStatus:      'Scheduled',
+        consultationDate: form.consultDate,
+        consultationTime: form.consultTime,
+        assignedDoctor: form.doctor,
+        doctor: form.doctor,
+        consultStatus: 'Scheduled',
         consultationStatus: 'Scheduled',
-        consultDate:        form.consultDate,
+        consultDate: form.consultDate,
         consultHistory: [
           {
-            date:   today,
-            type:   form.type,
+            date: today,
+            type: form.type,
             doctor: form.doctor,
             status: 'Upcoming',
-            note:   form.notes || 'Slot booked by staff.',
+            note: form.notes || 'Slot booked by staff.',
           },
           ...(patient.consultHistory || []),
         ],
@@ -91,18 +114,18 @@ function BookSlotModal({ open, patient, onClose }) {
       <div className="bsm-modal" role="dialog" aria-modal="true">
         <div className="bsm-header">
           <div className="bsm-header__left">
-            <div className="bsm-icon">📅</div>
+            <div className="bsm-icon"><Calendar size={20} /></div>
             <div>
               <h2 className="bsm-title">Book Consultation Slot</h2>
               <p className="bsm-sub">Schedule a new patient consultation</p>
             </div>
           </div>
-          <button className="bsm-close" onClick={handleClose}>✕</button>
+          <button className="bsm-close" onClick={handleClose}><ChevronRight size={16} /></button>
         </div>
 
         {saved ? (
           <div className="bsm-success">
-            <span className="bsm-success__icon">✅</span>
+            <span className="bsm-success__icon"><CheckCircle size={40} /></span>
             <p>Slot booked successfully!</p>
           </div>
         ) : (
@@ -157,7 +180,7 @@ function BookSlotModal({ open, patient, onClose }) {
                 Cancel
               </button>
               <button type="submit" className="bsm-btn bsm-btn--save">
-                📅 Book Slot
+                <Calendar size={16} /> Book Slot
               </button>
             </div>
           </form>
@@ -189,20 +212,20 @@ function useStats(patients) {
   ).length;
 
   return [
-    { label: 'Total Patients',        value: total,              change: 'All registered patients', icon: '👥', color: 'blue'   },
-    { label: "Today's Consultations", value: todayConsults.length, change: `${todayRemaining} remaining today`, icon: '📋', color: 'purple' },
-    { label: 'Pending Payments',      value: pendingPayments,    change: 'Awaiting payment',        icon: '💳', color: 'amber'  },
-    { label: 'Completed This Month',  value: completedThisMonth, change: 'Consultations this month', icon: '✅', color: 'green'  },
+    { label: 'Total Patients', value: total, change: 'All registered patients', Icon: Users, color: 'blue' },
+    { label: "Today's Consultations", value: todayConsults.length, change: `${todayRemaining} remaining today`, Icon: ClipboardList, color: 'purple' },
+    { label: 'Pending Payments', value: pendingPayments, change: 'Awaiting payment', Icon: CreditCard, color: 'amber' },
+    { label: 'Completed This Month', value: completedThisMonth, change: 'Consultations this month', Icon: CheckCircle, color: 'green' },
   ];
 }
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',       icon: '⬛', key: 'dashboard' },
-  { label: 'Patients',        icon: '👥', key: 'patients'  },
-  { label: 'Consultations',   icon: '📋', key: 'consults'  },
-  { label: 'Payments',        icon: '💳', key: 'payments'  },
-  { label: 'Diet Plans',      icon: '🥗', key: 'diet'      },
-  { label: 'Reports',         icon: '📊', key: 'reports'   },
+  { label: 'Dashboard', icon: <LayoutDashboard size={18} />, key: 'dashboard' },
+  { label: 'Patients', icon: <Users size={18} />, key: 'patients' },
+  { label: 'Consultations', icon: <ClipboardList size={18} />, key: 'consults' },
+  { label: 'Payments', icon: <CreditCard size={18} />, key: 'payments' },
+  { label: 'Diet Plans', icon: <Utensils size={18} />, key: 'diet' },
+  { label: 'Reports', icon: <BarChart3 size={18} />, key: 'reports' },
 ];
 
 /* ─── Sub-components ─────────────────────────────────── */
@@ -223,7 +246,7 @@ function Sidebar({ active, setActive, collapsed, setCollapsed }) {
             onClick={() => setCollapsed(c => !c)}
             aria-label="Toggle sidebar"
           >
-            {collapsed ? '▶' : '◀'}
+            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
         </div>
 
@@ -254,7 +277,7 @@ function Sidebar({ active, setActive, collapsed, setCollapsed }) {
         </div>
         {!collapsed && (
           <button className="sd-logout">
-            <span>⬛</span> Sign Out
+            <LogOut size={16} /> Sign Out
           </button>
         )}
       </div>
@@ -262,11 +285,11 @@ function Sidebar({ active, setActive, collapsed, setCollapsed }) {
   );
 }
 
-function StatCard({ label, value, change, icon, color }) {
+function StatCard({ label, value, change, Icon, color }) {
   return (
     <div className={`sd-stat sd-stat--${color}`}>
       <div className="sd-stat__top">
-        <div className="sd-stat__icon">{icon}</div>
+        <div className="sd-stat__icon"><Icon size={22} /></div>
         <span className="sd-stat__value">{value}</span>
       </div>
       <p className="sd-stat__label">{label}</p>
@@ -290,7 +313,7 @@ function RecentPatients({ patients, loading, search, setSearch, onAddPatient, on
         </div>
         <div className="sd-card__actions">
           <div className="sd-search">
-            <span className="sd-search__icon">🔍</span>
+            <Search size={16} className="sd-search__icon" />
             <input
               className="sd-search__input"
               placeholder="Search patients…"
@@ -298,21 +321,19 @@ function RecentPatients({ patients, loading, search, setSearch, onAddPatient, on
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-          <button className="sd-btn sd-btn--primary" onClick={onAddPatient}>+ Add Patient</button>
         </div>
       </div>
 
       <div className="sd-table-wrap">
         {loading && (
           <div className="sd-empty">
-            <span className="sd-empty__icon">⏳</span>
+            <Clock size={40} className="sd-empty__icon" />
             <p className="sd-empty__title">Loading patients…</p>
           </div>
         )}
         <table className="sd-table" style={{ display: loading ? 'none' : 'table' }}>
           <thead>
             <tr>
-              <th>ID</th>
               <th>Patient Name</th>
               <th>Age</th>
               <th>Condition</th>
@@ -329,9 +350,8 @@ function RecentPatients({ patients, loading, search, setSearch, onAddPatient, on
           <tbody>
             {filtered.map(p => (
               <tr key={p.id}>
-                <td><span className="sd-id">{p.id}</span></td>
                 <td>
-                  <div className="sd-patient-cell">
+                  <div className="sd-patient-cell" onClick={() => onView(p.id)} style={{ cursor: 'pointer' }}>
                     <div className="sd-patient-avatar">
                       {p.name.charAt(0)}
                     </div>
@@ -354,8 +374,8 @@ function RecentPatients({ patients, loading, search, setSearch, onAddPatient, on
                 </td>
                 <td>
                   <div className="sd-row-actions">
-                    <button className="sd-icon-btn" title="View" onClick={() => onView(p.id)}>👁</button>
-                    <button className="sd-icon-btn" title="Book Slot" onClick={() => onBookSlot(p)}>📋</button>
+                    <button className="sd-icon-btn" title="View" onClick={() => onView(p.id)}><Eye size={14} /></button>
+                    <button className="sd-icon-btn" title="Book Slot" onClick={() => onBookSlot(p)}><Calendar size={14} /></button>
                   </div>
                 </td>
               </tr>
@@ -366,13 +386,13 @@ function RecentPatients({ patients, loading, search, setSearch, onAddPatient, on
           <div className="sd-empty">
             {patients.length === 0 ? (
               <>
-                <span className="sd-empty__icon">👤</span>
+                <Users size={40} className="sd-empty__icon" />
                 <p className="sd-empty__title">No patients yet</p>
                 <p className="sd-empty__sub">Click <strong>+ Add Patient</strong> to register the first patient.</p>
               </>
             ) : (
               <>
-                <span className="sd-empty__icon">🔍</span>
+                <Search size={40} className="sd-empty__icon" />
                 <p className="sd-empty__title">No results found</p>
                 <p className="sd-empty__sub">No patients match <em>"{search}"</em>. Try a different search.</p>
               </>
@@ -384,109 +404,13 @@ function RecentPatients({ patients, loading, search, setSearch, onAddPatient, on
   );
 }
 
-function TodayConsultations({ patients, onBookSlot }) {
-  const today = new Date().toISOString().slice(0, 10);
-  const todayLabel = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
-  const list = patients.filter(p => p.consultationDate === today);
 
-  return (
-    <div className="sd-card">
-      <div className="sd-card__head">
-        <div>
-          <h3 className="sd-card__title">Today's Consultations</h3>
-          <p className="sd-card__sub">{todayLabel}</p>
-        </div>
-        <button className="sd-btn sd-btn--outline" onClick={onBookSlot}>+ Book Slot</button>
-      </div>
-
-      <div className="sd-consult-list">
-        {list.length === 0 && (
-          <div className="sd-empty" style={{ padding: '1.5rem 0' }}>
-            <span className="sd-empty__icon">📋</span>
-            <p className="sd-empty__title">No consultations today</p>
-          </div>
-        )}
-        {list.map((p) => {
-          const status = p.consultStatus || 'Pending';
-          return (
-            <div key={p.id} className="sd-consult-item">
-              <div className="sd-consult-time">
-                <span>{p.consultationTime || '—'}</span>
-              </div>
-              <div className={`sd-consult-line sd-consult-line--${status.toLowerCase().replace(' ', '-')}`} />
-              <div className="sd-consult-body">
-                <div className="sd-consult-top">
-                  <span className="sd-consult-name">{p.name}</span>
-                  <span className={`sd-badge sd-badge--consult-${status.toLowerCase().replace(' ', '-')}`}>
-                    {status}
-                  </span>
-                </div>
-                <div className="sd-consult-meta">
-                  <span>{p.doctor || '—'}</span>
-                  <span className="sd-dot">·</span>
-                  <span>{p.condition}</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function RecentActivity({ patients }) {
-  // Build activity feed from 5 most recently registered patients
-  const recent = [...patients]
-    .sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate))
-    .slice(0, 5);
-
-  const items = recent.map(pt => {
-    if (pt.paymentStatus?.toLowerCase() === 'paid')
-      return { msg: `Payment received from ${pt.name}`, icon: '💰', date: pt.createdDate };
-    if (pt.dietStatus === 'Sent')
-      return { msg: `Diet plan sent to ${pt.name}`, icon: '🥗', date: pt.createdDate };
-    if (pt.consultationDate)
-      return { msg: `Consultation booked for ${pt.name}`, icon: '📅', date: pt.consultationDate };
-    if (pt.paymentStatus?.toLowerCase() === 'overdue')
-      return { msg: `Payment overdue: ${pt.name}`, icon: '⚠️', date: pt.createdDate };
-    return { msg: `New patient ${pt.name} registered`, icon: '👤', date: pt.createdDate };
-  });
-
-  return (
-    <div className="sd-card">
-      <div className="sd-card__head">
-        <div>
-          <h3 className="sd-card__title">Recent Activity</h3>
-          <p className="sd-card__sub">Latest actions on the system</p>
-        </div>
-      </div>
-      <div className="sd-activity-list">
-        {items.length === 0 && (
-          <div className="sd-empty" style={{ padding: '1.5rem 0' }}>
-            <p className="sd-empty__title">No activity yet</p>
-          </div>
-        )}
-        {items.map((a, i) => (
-          <div key={i} className="sd-activity-item">
-            <span className="sd-activity-icon">{a.icon}</span>
-            <div className="sd-activity-body">
-              <p className="sd-activity-msg">{a.msg}</p>
-              <p className="sd-activity-time">{a.date || ''}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function QuickActions({ onAddPatient }) {
   const actions = [
-    { label: 'Register New Patient', icon: '👤', color: 'blue',   onClick: onAddPatient },
-    { label: 'Book Consultation',    icon: '📅', color: 'purple', onClick: undefined },
-    { label: 'Record Payment',       icon: '💰', color: 'green',  onClick: undefined },
-    { label: 'View Reports',         icon: '📊', color: 'amber',  onClick: undefined },
+    { label: 'Register New Patient', Icon: UserPlus, color: 'blue', onClick: onAddPatient },
+    { label: 'Record Payment', Icon: DollarSign, color: 'green', onClick: undefined },
+    { label: 'View Reports', Icon: BarChart3, color: 'amber', onClick: undefined },
   ];
 
   return (
@@ -495,9 +419,9 @@ function QuickActions({ onAddPatient }) {
         <h3 className="sd-card__title">Quick Actions</h3>
       </div>
       <div className="sd-quick-grid">
-        {actions.map(({ label, icon, color, onClick }) => (
+        {actions.map(({ label, Icon, color, onClick }) => (
           <button key={label} className={`sd-quick-btn sd-quick-btn--${color}`} onClick={onClick}>
-            <span className="sd-quick-icon">{icon}</span>
+            <div className="sd-quick-icon"><Icon size={24} /></div>
             <span>{label}</span>
           </button>
         ))}
@@ -508,15 +432,15 @@ function QuickActions({ onAddPatient }) {
 
 /* ─── Main Dashboard ────────────────────────────────── */
 export default function StaffDashboard() {
-  const navigate                  = useNavigate();
-  const { patients, addPatient, loading }  = usePatients();
-  const stats                     = useStats(patients);
-  const [active, setActive]       = useState('dashboard');
+  const navigate = useNavigate();
+  const { patients, addPatient, loading } = usePatients();
+  const stats = useStats(patients);
+  const [active, setActive] = useState('dashboard');
   const [collapsed, setCollapsed] = useState(false);
-  const [search, setSearch]       = useState('');
-  const [modalOpen, setModalOpen]       = useState(false);
+  const [search, setSearch] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
   const [bookSlotOpen, setBookSlotOpen] = useState(false);
-  const [bookPatient, setBookPatient]   = useState(null);
+  const [bookPatient, setBookPatient] = useState(null);
 
   return (
     <div className="sd-layout">
@@ -535,8 +459,11 @@ export default function StaffDashboard() {
             <p className="sd-topbar__date">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>
           </div>
           <div className="sd-topbar__right">
+            <button className="sd-btn sd-btn--add-patient" onClick={() => setModalOpen(true)}>
+              <UserPlus size={18} /> Add New Patient
+            </button>
             <div className="sd-topbar__notif">
-              <span>🔔</span>
+              <Bell size={20} />
               <span className="sd-notif-dot" />
             </div>
             <div className="sd-topbar__avatar">S</div>
@@ -555,12 +482,6 @@ export default function StaffDashboard() {
 
           {/* Patients table */}
           <RecentPatients patients={patients} loading={loading} search={search} setSearch={setSearch} onAddPatient={() => setModalOpen(true)} onView={(id) => navigate(`/staff/patients/${id}`)} onBookSlot={(p) => { setBookPatient(p); setBookSlotOpen(true); }} />
-
-          {/* Bottom row */}
-          <div className="sd-bottom-row">
-            <TodayConsultations patients={patients} onBookSlot={() => setBookSlotOpen(true)} />
-            <RecentActivity patients={patients} />
-          </div>
         </div>
       </div>
 

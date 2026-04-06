@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { usePatients } from '../context/PatientsContext';
 import EditPatientModal from '../components/EditPatientModal';
 import './PatientDetail.css';
@@ -242,6 +242,10 @@ function SummaryCard({ p }) {
 export default function PatientDetail() {
   const { id }              = useParams();
   const navigate            = useNavigate();
+  const location            = useLocation();
+  const isDoctor            = location.pathname.startsWith('/doctor');
+  const basePath            = isDoctor ? '/doctor' : '/staff';
+
   const { patients, updatePatient } = usePatients();
   const [tab, setTab]       = useState('overview');
   const [editOpen, setEditOpen] = useState(false);
@@ -254,7 +258,7 @@ export default function PatientDetail() {
         <p className="pd-not-found__emoji">🔍</p>
         <h2>Patient not found</h2>
         <p>No patient with ID <strong>{id}</strong> exists.</p>
-        <button className="pd-btn pd-btn--primary" onClick={() => navigate('/staff/dashboard')}>
+        <button className="pd-btn pd-btn--primary" onClick={() => navigate(`${basePath}/dashboard`)}>
           Back to Dashboard
         </button>
       </div>
@@ -277,13 +281,13 @@ export default function PatientDetail() {
 
       {/* ── Top bar ── */}
       <header className="pd-topbar">
-        <button className="pd-back" onClick={() => navigate('/staff/dashboard')}>
+        <button className="pd-back" onClick={() => navigate(`${basePath}/dashboard`)}>
           ← Back to Patients
         </button>
         <div className="pd-topbar__right">
           <button
             className="pd-btn pd-btn--diet"
-            onClick={() => navigate(`/staff/patients/${patient.id}/diet`)}
+            onClick={() => navigate(`${basePath}/patients/${patient.id}/diet`)}
           >
             🥗 View Diet Plan
           </button>

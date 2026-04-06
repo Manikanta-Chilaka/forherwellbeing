@@ -2,6 +2,20 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePatients } from '../context/PatientsContext';
 import { supabase } from '../lib/supabaseClient';
+import { 
+  Eye, 
+  CheckCircle, 
+  ClipboardList, 
+  Search, 
+  ChevronLeft, 
+  ChevronRight, 
+  Users, 
+  Utensils, 
+  BarChart3, 
+  Calendar,
+  LogOut,
+  Bell
+} from 'lucide-react';
 import './DoctorDashboard.css';
 
 /* ─── Logged-in doctor (swap when auth is added) ─────── */
@@ -9,9 +23,9 @@ const CURRENT_DOCTOR = 'Dr. Raga Deepthi';
 
 /* ─── Nav items ──────────────────────────────────────── */
 const NAV_ITEMS = [
-  { key: 'patients',  label: 'My Patients',   icon: '👥' },
-  { key: 'diet',      label: 'Diet Plans',     icon: '🥗' },
-  { key: 'reports',   label: 'Reports',        icon: '📊' },
+  { key: 'patients',  label: 'My Patients',   icon: <Users size={18} /> },
+  { key: 'diet',      label: 'Diet Plans',     icon: <Utensils size={18} /> },
+  { key: 'reports',   label: 'Reports',        icon: <BarChart3 size={18} /> },
 ];
 
 /* ─── Status badge ───────────────────────────────────── */
@@ -35,11 +49,16 @@ function DietBadge({ value }) {
     sent:    'dd-diet-badge--sent',
   };
   const cls = styles[value?.toLowerCase()] || 'dd-diet-badge--pending';
-  const icons = { pending: '⏳', ready: '✅', sent: '📤' };
   const label = value || 'Pending';
+  const icon = {
+    pending: <ClipboardList size={12} />,
+    ready:   <CheckCircle size={12} />,
+    sent:    <CheckCircle size={12} />
+  }[label.toLowerCase()] || <ClipboardList size={12} />;
+  
   return (
     <span className={`dd-diet-badge ${cls}`}>
-      {icons[label.toLowerCase()] || '⏳'} {label}
+      {icon} {label}
     </span>
   );
 }
@@ -62,7 +81,7 @@ function Sidebar({ active, setActive, collapsed, setCollapsed }) {
             onClick={() => setCollapsed(c => !c)}
             aria-label="Toggle sidebar"
           >
-            {collapsed ? '▶' : '◀'}
+            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
         </div>
 
@@ -92,7 +111,7 @@ function Sidebar({ active, setActive, collapsed, setCollapsed }) {
           )}
         </div>
         {!collapsed && (
-          <button className="dd-logout">⬛ Sign Out</button>
+          <button className="dd-logout"><LogOut size={16} /> Sign Out</button>
         )}
       </div>
     </aside>
@@ -100,11 +119,13 @@ function Sidebar({ active, setActive, collapsed, setCollapsed }) {
 }
 
 /* ─── Stat card ──────────────────────────────────────── */
-function StatCard({ label, value, icon, color }) {
+function StatCard({ label, value, Icon, color }) {
   return (
     <div className={`dd-stat dd-stat--${color}`}>
       <div className="dd-stat__top">
-        <span className="dd-stat__icon">{icon}</span>
+        <span className="dd-stat__icon">
+          <Icon size={22} />
+        </span>
         <span className="dd-stat__value">{value}</span>
       </div>
       <p className="dd-stat__label">{label}</p>
@@ -128,7 +149,7 @@ function PatientsTable({ patients, onMarkCompleted, search, setSearch }) {
           <p className="dd-card__sub">Patients assigned to {CURRENT_DOCTOR}</p>
         </div>
         <div className="dd-search">
-          <span className="dd-search__icon">🔍</span>
+          <Search size={16} className="dd-search__icon" />
           <input
             className="dd-search__input"
             placeholder="Search patient or condition…"
@@ -155,11 +176,10 @@ function PatientsTable({ patients, onMarkCompleted, search, setSearch }) {
             {filtered.map(p => (
               <tr key={p.id}>
                 <td>
-                  <div className="dd-patient-cell">
+                  <div className="dd-patient-cell" onClick={() => navigate(`/doctor/patients/${p.id}`)} style={{ cursor: 'pointer' }}>
                     <div className="dd-patient-avatar">{p.name.charAt(0)}</div>
                     <div>
                       <p className="dd-patient-name">{p.name}</p>
-                      <p className="dd-patient-id">{p.id}</p>
                     </div>
                   </div>
                 </td>
@@ -170,13 +190,16 @@ function PatientsTable({ patients, onMarkCompleted, search, setSearch }) {
                 <td><DietBadge value={p.dietStatus} /></td>
                 <td>
                   <div className="dd-action-group">
+                    <button className="dd-btn dd-btn--view" title="View Details" onClick={() => navigate(`/doctor/patients/${p.id}`)}>
+                      <Eye size={14} /> View
+                    </button>
                     {(p.consultStatus === 'Scheduled' || p.consultStatus === 'Pending') && (
                       <button className="dd-btn dd-btn--complete" onClick={() => onMarkCompleted(p.id)}>
-                        ✓ Mark Completed
+                        <CheckCircle size={14} /> Mark Completed
                       </button>
                     )}
                     <button className="dd-btn dd-btn--diet-plan" onClick={() => navigate(`/doctor/diet-plan/${p.id}`)}>
-                      📋 Diet Plan
+                      <ClipboardList size={14} /> Diet Plan
                     </button>
                   </div>
                 </td>
@@ -187,7 +210,7 @@ function PatientsTable({ patients, onMarkCompleted, search, setSearch }) {
 
         {filtered.length === 0 && (
           <div className="dd-empty">
-            <p className="dd-empty__icon">🔍</p>
+            <p className="dd-empty__icon"><Search size={40} /></p>
             <p>No patients match your search.</p>
           </div>
         )}
@@ -220,25 +243,25 @@ export default function DoctorDashboard() {
     {
       label: 'Total Assigned',
       value: myPatients.length,
-      icon: '👥',
+      Icon: Users,
       color: 'blue',
     },
     {
       label: 'Scheduled Today',
       value: myPatients.filter(p => p.consultStatus === 'Scheduled').length,
-      icon: '📅',
+      Icon: Calendar,
       color: 'purple',
     },
     {
       label: 'Completed',
       value: myPatients.filter(p => p.consultStatus === 'Completed').length,
-      icon: '✅',
+      Icon: CheckCircle,
       color: 'green',
     },
     {
       label: 'Pending',
       value: myPatients.filter(p => p.consultStatus === 'Pending').length,
-      icon: '⏳',
+      Icon: ClipboardList,
       color: 'amber',
     },
   ];
@@ -265,8 +288,8 @@ export default function DoctorDashboard() {
           </div>
           <div className="dd-topbar__right">
             <div className="dd-topbar__notif">
-              🔔
-              <span className="dd-notif-dot" />
+              <Bell size={20} />
+              <span className="sd-notif-dot" />
             </div>
             <div className="dd-topbar__avatar">R</div>
           </div>

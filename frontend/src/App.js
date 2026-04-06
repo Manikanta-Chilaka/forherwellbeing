@@ -44,6 +44,8 @@ function App() {
           <Route path="/staff/patients/:id"       element={<PatientDetail />} />
           <Route path="/staff/patients/:id/diet"  element={<DietView />} />
           <Route path="/doctor/dashboard"         element={<DoctorDashboard />} />
+          <Route path="/doctor/patients/:id"      element={<PatientDetail />} />
+          <Route path="/doctor/patients/:id/diet" element={<DietView />} />
           <Route path="/doctor/diet-plan/:id"     element={<CreateDietPlan />} />
         </Routes>
       </BrowserRouter>

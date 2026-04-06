@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { usePatients } from '../context/PatientsContext';
 import { getTemplate } from '../data/dietTemplates';
 import './DietView.css';
@@ -19,6 +19,10 @@ function DietStatusBadge({ value }) {
 export default function DietView() {
   const { id }       = useParams();
   const navigate     = useNavigate();
+  const location     = useLocation();
+  const isDoctor     = location.pathname.startsWith('/doctor');
+  const basePath     = isDoctor ? '/doctor' : '/staff';
+
   const { patients, updatePatient } = usePatients();
 
   const patient = patients.find(p => p.id === id);
@@ -31,7 +35,7 @@ export default function DietView() {
       <div className="dv-not-found">
         <p className="dv-not-found__emoji">🔍</p>
         <h2>Patient not found</h2>
-        <button className="dv-btn dv-btn--primary" onClick={() => navigate('/staff/dashboard')}>
+        <button className="dv-btn dv-btn--primary" onClick={() => navigate(`${basePath}/dashboard`)}>
           Back to Dashboard
         </button>
       </div>
@@ -54,9 +58,9 @@ export default function DietView() {
 
       {/* ── Breadcrumb ── */}
       <nav className="dv-breadcrumb">
-        <Link to="/staff/dashboard" className="dv-bc-link">Dashboard</Link>
+        <Link to={`${basePath}/dashboard`} className="dv-bc-link">Dashboard</Link>
         <span className="dv-bc-sep">›</span>
-        <Link to={`/staff/patients/${patient.id}`} className="dv-bc-link">
+        <Link to={`${basePath}/patients/${patient.id}`} className="dv-bc-link">
           {patient.name}
         </Link>
         <span className="dv-bc-sep">›</span>
@@ -66,7 +70,7 @@ export default function DietView() {
       {/* ── Header ── */}
       <div className="dv-header">
         <div className="dv-header__left">
-          <button className="dv-back" onClick={() => navigate(`/staff/patients/${patient.id}`)}>
+          <button className="dv-back" onClick={() => navigate(`${basePath}/patients/${patient.id}`)}>
             ← Back to Patient
           </button>
           <div className="dv-header__info">

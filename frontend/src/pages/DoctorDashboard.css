@@ -17,7 +17,7 @@
 .dd-sidebar {
   width: 240px;
   flex-shrink: 0;
-  background: linear-gradient(180deg, #134e4a 0%, #0d9488 100%);
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -241,10 +241,10 @@
 
 .dd-stat {
   background: #fff;
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
   padding: 1.25rem 1.5rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
 .dd-stat:hover {
@@ -369,7 +369,7 @@
 }
 
 .dd-table td {
-  padding: 0.9rem 1rem;
+  padding: 0.75rem 0.85rem;
   border-bottom: 1px solid #f8fafc;
   color: #374151;
   vertical-align: middle;
@@ -387,21 +387,23 @@
 .dd-patient-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ccfbf1, #99f6e4);
-  color: #0d9488;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #64748b;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  border: 1px solid #e2e8f0;
 }
 
 .dd-patient-name {
   font-weight: 600;
   font-size: 0.855rem;
   color: #0f172a;
+  white-space: nowrap;
 }
 
 .dd-patient-id {
@@ -413,6 +415,10 @@
 .dd-condition {
   font-size: 0.8rem;
   color: #475569;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dd-meta {
@@ -453,17 +459,30 @@
 }
 
 .dd-btn--complete {
-  background: #f0fdf4;
-  color: #16a34a;
-  border: 1.5px solid #bbf7d0;
+  background: #fff;
+  color: #059669;
+  border: 1px solid #d1fae5;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .dd-btn--complete:hover {
-  background: #16a34a;
+  background: #059669;
   color: #fff;
-  border-color: #16a34a;
+  border-color: #059669;
+}
+
+.dd-btn--view {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1.5px solid #e2e8f0;
+}
+
+.dd-btn--view:hover {
+  background: #0f172a;
+  color: #fff;
+  border-color: #0f172a;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
 }
 
 .dd-done {
@@ -484,17 +503,16 @@
 }
 
 .dd-btn--diet-plan {
-  background: #eff6ff;
+  background: #fff;
   color: #2563eb;
-  border: 1.5px solid #bfdbfe;
+  border: 1px solid #dbeafe;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .dd-btn--diet-plan:hover {
   background: #2563eb;
   color: #fff;
   border-color: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
 .dd-btn--diet:hover {
