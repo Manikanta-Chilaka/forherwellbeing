@@ -599,6 +599,37 @@
   border-color: #bbf7d0;
 }
 
+.pd-report-btn--delete {
+  background: #fff;
+  border: 1px solid #fca5a5;
+  color: #ef4444;
+}
+
+.pd-report-btn--delete:hover:not(:disabled) {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #f87171;
+}
+
+.pd-report-btn--delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pd-report-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(220, 38, 38, 0.25);
+  border-top-color: #dc2626;
+  border-radius: 50%;
+  animation: pd-spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes pd-spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 960px) {
   .pd-body { flex-direction: column; padding: 1.25rem; }

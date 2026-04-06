@@ -5,7 +5,8 @@ import EditPatientModal from '../components/EditPatientModal';
 import { 
   FileText, 
   ExternalLink, 
-  Download, 
+  Download,
+  Trash2,
   LayoutDashboard, 
   Stethoscope, 
   Leaf, 
@@ -165,7 +166,8 @@ function FoodTab({ p }) {
 }
 
 /* ─── Tab: Reports ───────────────────────────────────────── */
-function ReportsTab({ p }) {
+function ReportsTab({ p, updatePatient }) {
+  const [deleting, setDeleting] = useState(null);
   const reports = p.reports || [];
 
   const formatSize = (bytes) => {
@@ -173,6 +175,14 @@ function ReportsTab({ p }) {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const handleDelete = async (index) => {
+    if (!window.confirm(`Delete "${reports[index].name}"? This cannot be undone.`)) return;
+    setDeleting(index);
+    const updated = reports.filter((_, i) => i !== index);
+    await updatePatient(p.id, { reports: updated });
+    setDeleting(null);
   };
 
   return (
@@ -214,6 +224,16 @@ function ReportsTab({ p }) {
                   >
                     <Download size={16} />
                   </a>
+                  <button
+                    className="pd-report-btn pd-report-btn--delete"
+                    title="Delete Report"
+                    onClick={() => handleDelete(i)}
+                    disabled={deleting === i}
+                  >
+                    {deleting === i
+                      ? <span className="pd-report-spinner" />
+                      : <Trash2 size={16} />}
+                  </button>
                 </div>
               </div>
             ))}
@@ -345,7 +365,7 @@ export default function PatientDetail() {
       case 'lifestyle':    return <LifestyleTab      p={patient} />;
       case 'food':         return <FoodTab           p={patient} />;
       case 'consultation': return <ConsultationTab   p={patient} />;
-      case 'reports':      return <ReportsTab        p={patient} />;
+      case 'reports':      return <ReportsTab        p={patient} updatePatient={updatePatient} />;
       default:             return null;
     }
   };
