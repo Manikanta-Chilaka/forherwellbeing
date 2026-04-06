@@ -3,19 +3,25 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { usePatients } from '../context/PatientsContext';
 import { supabase } from '../lib/supabaseClient';
 import EditPatientModal from '../components/EditPatientModal';
-import { 
-  FileText, 
-  ExternalLink, 
+import {
+  FileText,
+  ExternalLink,
   Download,
   Trash2,
   UploadCloud,
-  LayoutDashboard, 
-  Stethoscope, 
-  Leaf, 
-  Utensils, 
+  LayoutDashboard,
+  Stethoscope,
+  Leaf,
+  Utensils,
   Calendar,
   FolderOpen,
-  ClipboardList
+  ClipboardList,
+  User,
+  Moon,
+  Brain,
+  Activity,
+  Briefcase,
+  Search
 } from 'lucide-react';
 import './PatientDetail.css';
 
@@ -83,7 +89,7 @@ function OverviewTab({ p }) {
   return (
     <div className="pd-tab-content">
       <div className="pd-overview-grid">
-        <Card title="Personal Details" icon="👤">
+        <Card title="Personal Details" icon={<User size={16} />}>
           <InfoRow label="Full Name"    value={p.name} />
           <InfoRow label="Phone"        value={p.phone} />
           <InfoRow label="Age"          value={`${p.age} years`} />
@@ -92,7 +98,7 @@ function OverviewTab({ p }) {
           <InfoRow label="Weight"       value={p.weight} />
         </Card>
 
-        <Card title="Health Summary" icon="🩺">
+        <Card title="Health Summary" icon={<Stethoscope size={16} />}>
           <InfoRow label="Primary Condition"   value={p.condition} />
           <InfoRow label="Patient Status"      value={p.status}        badge />
           <InfoRow label="Payment Status"      value={p.paymentStatus} badge />
@@ -103,7 +109,7 @@ function OverviewTab({ p }) {
       </div>
 
       {p.notes && (
-        <Card title="Doctor Notes" icon="📝">
+        <Card title="Doctor Notes" icon={<FileText size={16} />}>
           <p className="pd-notes">{p.notes}</p>
         </Card>
       )}
@@ -115,7 +121,7 @@ function OverviewTab({ p }) {
 function MedicalTab({ p }) {
   return (
     <div className="pd-tab-content">
-      <Card title="Medical Information" icon="🩺">
+      <Card title="Medical Information" icon={<Stethoscope size={16} />}>
         <InfoRow label="Primary Condition"   value={p.condition} />
         <InfoRow label="Current Medications" value={p.medications} />
         <InfoRow label="Known Allergies"     value={p.allergies} />
@@ -128,10 +134,10 @@ function MedicalTab({ p }) {
 /* ─── Tab: Lifestyle ─────────────────────────────────────── */
 function LifestyleTab({ p }) {
   const items = [
-    { label: 'Sleep',          value: p.sleep,    icon: '😴' },
-    { label: 'Stress Level',   value: p.stress,   icon: '🧠' },
-    { label: 'Activity Level', value: p.activity, icon: '🏃‍♀️' },
-    { label: 'Work Type',      value: p.workType, icon: '💼' },
+    { label: 'Sleep',          value: p.sleep,    icon: <Moon size={20} /> },
+    { label: 'Stress Level',   value: p.stress,   icon: <Brain size={20} /> },
+    { label: 'Activity Level', value: p.activity, icon: <Activity size={20} /> },
+    { label: 'Work Type',      value: p.workType, icon: <Briefcase size={20} /> },
   ];
 
   const stressColor = { Low: 'green', Moderate: 'amber', High: 'red', Severe: 'red' };
@@ -157,7 +163,7 @@ function LifestyleTab({ p }) {
 function FoodTab({ p }) {
   return (
     <div className="pd-tab-content">
-      <Card title="Food Habits" icon="🥗">
+      <Card title="Food Habits" icon={<Utensils size={16} />}>
         <InfoRow label="Diet Type"             value={p.dietType} />
         <InfoRow label="Meal Timing"           value={p.mealTiming} />
         <InfoRow label="Food Dislikes"         value={p.foodDislikes} />
@@ -398,7 +404,7 @@ export default function PatientDetail() {
   if (!patient) {
     return (
       <div className="pd-not-found">
-        <p className="pd-not-found__emoji">🔍</p>
+        <Search size={48} className="pd-not-found__emoji" />
         <h2>Patient not found</h2>
         <p>No patient with ID <strong>{id}</strong> exists.</p>
         <button className="pd-btn pd-btn--primary" onClick={() => navigate(`${basePath}/dashboard`)}>
@@ -433,9 +439,9 @@ export default function PatientDetail() {
             className="pd-btn pd-btn--diet"
             onClick={() => navigate(`${basePath}/patients/${patient.id}/diet`)}
           >
-            🥗 View Diet Plan
+            View Diet Plan
           </button>
-          <button className="pd-btn pd-btn--outline" onClick={() => setEditOpen(true)}>✏️ Edit Patient</button>
+          <button className="pd-btn pd-btn--outline" onClick={() => setEditOpen(true)}>Edit Patient</button>
         </div>
       </header>
 
@@ -445,13 +451,13 @@ export default function PatientDetail() {
         <div className="pd-header__info">
           <h1 className="pd-header__name">{patient.name}</h1>
           <div className="pd-header__meta">
-            <span>📞 {patient.phone}</span>
+            <span>{patient.phone}</span>
             <span className="pd-dot">·</span>
-            <span>🎂 {patient.age} yrs</span>
+            <span>{patient.age} yrs</span>
             <span className="pd-dot">·</span>
-            <span>🩺 {patient.condition}</span>
+            <span>{patient.condition}</span>
             <span className="pd-dot">·</span>
-            <span>📍 {patient.city}</span>
+            <span>{patient.city}</span>
           </div>
           <div className="pd-header__badges">
             <Badge value={patient.status} />

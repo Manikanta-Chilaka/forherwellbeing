@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { usePatients } from '../context/PatientsContext';
 import { getTemplate } from '../data/dietTemplates';
+import { Clock, CheckCircle, Send, Target, Ban, Pill, ClipboardList, Search } from 'lucide-react';
 import './DietView.css';
 
 /* ─── Diet status badge ──────────────────────────────── */
 function DietStatusBadge({ value }) {
   const map = {
-    pending: { cls: 'dv-badge--pending', label: 'Pending',  icon: '⏳' },
-    ready:   { cls: 'dv-badge--ready',   label: 'Ready',    icon: '✅' },
-    sent:    { cls: 'dv-badge--sent',    label: 'Sent',     icon: '📤' },
+    pending: { cls: 'dv-badge--pending', label: 'Pending',  icon: <Clock size={13} /> },
+    ready:   { cls: 'dv-badge--ready',   label: 'Ready',    icon: <CheckCircle size={13} /> },
+    sent:    { cls: 'dv-badge--sent',    label: 'Sent',     icon: <Send size={13} /> },
   };
   const s = map[value?.toLowerCase()] || map.pending;
   return <span className={`dv-badge ${s.cls}`}>{s.icon} {s.label}</span>;
@@ -33,7 +34,7 @@ export default function DietView() {
   if (!patient) {
     return (
       <div className="dv-not-found">
-        <p className="dv-not-found__emoji">🔍</p>
+        <Search size={40} className="dv-not-found__emoji" />
         <h2>Patient not found</h2>
         <button className="dv-btn dv-btn--primary" onClick={() => navigate(`${basePath}/dashboard`)}>
           Back to Dashboard
@@ -106,14 +107,14 @@ export default function DietView() {
             onClick={handleMarkSent}
             disabled={alreadySent}
           >
-            {alreadySent ? '📤 Sent' : '📤 Mark as Sent'}
+            {alreadySent ? 'Sent' : 'Mark as Sent'}
           </button>
         </div>
       </div>
 
       {/* ── Success message ── */}
       <div className={`dv-success ${justMarked ? 'dv-success--show' : ''}`}>
-        <span className="dv-success__icon">✅</span>
+        <span className="dv-success__icon"><CheckCircle size={20} /></span>
         Diet marked as sent. The patient will be notified.
       </div>
 
@@ -123,7 +124,7 @@ export default function DietView() {
         {/* Goal */}
         <div className="dv-card">
           <div className="dv-card__head">
-            <span className="dv-card__icon">🎯</span>
+            <span className="dv-card__icon"><Target size={18} /></span>
             <h3 className="dv-card__title">Goal</h3>
           </div>
           <p className="dv-goal">{template.goal}</p>
@@ -132,7 +133,7 @@ export default function DietView() {
         {/* Meal Plan */}
         <div className="dv-card">
           <div className="dv-card__head">
-            <span className="dv-card__icon">🕐</span>
+            <span className="dv-card__icon"><Clock size={18} /></span>
             <h3 className="dv-card__title">Daily Meal Schedule</h3>
           </div>
           <div className="dv-meals">
@@ -140,7 +141,7 @@ export default function DietView() {
               <div key={i} className="dv-meal-row">
                 <div className="dv-meal-time">{meal.time}</div>
                 <div className="dv-meal-items">{meal.items}</div>
-                {meal.notes && <div className="dv-meal-note">💬 {meal.notes}</div>}
+                {meal.notes && <div className="dv-meal-note">{meal.notes}</div>}
               </div>
             ))}
           </div>
@@ -150,7 +151,7 @@ export default function DietView() {
         <div className="dv-two-col">
           <div className="dv-card">
             <div className="dv-card__head">
-              <span className="dv-card__icon">🚫</span>
+              <span className="dv-card__icon"><Ban size={18} /></span>
               <h3 className="dv-card__title">Foods to Avoid</h3>
             </div>
             <div className="dv-tags">
@@ -162,7 +163,7 @@ export default function DietView() {
 
           <div className="dv-card">
             <div className="dv-card__head">
-              <span className="dv-card__icon">💊</span>
+              <span className="dv-card__icon"><Pill size={18} /></span>
               <h3 className="dv-card__title">Recommended Supplements</h3>
             </div>
             <div className="dv-tags">
@@ -177,7 +178,7 @@ export default function DietView() {
         {(patient.foodDislikes || patient.dietType) && (
           <div className="dv-card dv-card--note">
             <div className="dv-card__head">
-              <span className="dv-card__icon">📋</span>
+              <span className="dv-card__icon"><ClipboardList size={18} /></span>
               <h3 className="dv-card__title">Patient Preferences</h3>
             </div>
             <div className="dv-pref-grid">

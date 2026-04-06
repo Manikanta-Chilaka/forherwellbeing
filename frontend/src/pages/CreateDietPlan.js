@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { AlertTriangle } from 'lucide-react';
 import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import { usePatients } from '../context/PatientsContext';
 import { getTemplate } from '../data/dietTemplates';
@@ -33,13 +34,13 @@ const Icon = ({ name }) => {
 
 /* ─── Meal types ─────────────────────────────────────── */
 const MEAL_SLOTS = [
-  { key: 'earlyMorning', label: 'Early Morning',      emoji: '🌅', time: '6:00–7:00 AM' },
-  { key: 'breakfast',    label: 'Breakfast',           emoji: '🍳', time: '8:00–9:00 AM' },
-  { key: 'midMorning',   label: 'Mid Morning Snack',   emoji: '🍎', time: '10:30–11:00 AM' },
-  { key: 'lunch',        label: 'Lunch',               emoji: '🍱', time: '1:00–2:00 PM' },
-  { key: 'eveningSnack', label: 'Evening Snack',       emoji: '🥜', time: '4:30–5:00 PM' },
-  { key: 'dinner',       label: 'Dinner',              emoji: '🍽️', time: '7:30–8:00 PM' },
-  { key: 'bedtime',      label: 'Bedtime',             emoji: '🌙', time: '9:30–10:00 PM' },
+  { key: 'earlyMorning', label: 'Early Morning',      time: '6:00–7:00 AM' },
+  { key: 'breakfast',    label: 'Breakfast',           time: '8:00–9:00 AM' },
+  { key: 'midMorning',   label: 'Mid Morning Snack',   time: '10:30–11:00 AM' },
+  { key: 'lunch',        label: 'Lunch',               time: '1:00–2:00 PM' },
+  { key: 'eveningSnack', label: 'Evening Snack',       time: '4:30–5:00 PM' },
+  { key: 'dinner',       label: 'Dinner',              time: '7:30–8:00 PM' },
+  { key: 'bedtime',      label: 'Bedtime',             time: '9:30–10:00 PM' },
 ];
 
 const emptyMeal = () => ({ items: '', quantity: '', calories: '', notes: '' });
@@ -187,7 +188,7 @@ function LabAnalysisPanel({ reports, onMarkersAnalyzed, markers, analyzing }) {
       {hasReports && (
         <div className="cdp-lab-files">
           <p className="cdp-lab-files__label">
-            📎 Uploaded Reports — click any file to view, then click "Analyze Lab Reports" to extract markers
+            Uploaded Reports — click any file to view, then click "Analyze Lab Reports" to extract markers
           </p>
           <div className="cdp-lab-files__grid">
             {reports.map((r, i) => (
@@ -218,7 +219,7 @@ function LabAnalysisPanel({ reports, onMarkersAnalyzed, markers, analyzing }) {
           </div>
           {imageReports.length === 0 && (
             <p className="cdp-lab-files__warn">
-              ⚠️ No image files found. AI analysis works best with JPG/PNG images of lab reports. PDFs are not yet supported for AI reading.
+              No image files found. AI analysis works best with JPG/PNG images of lab reports. PDFs are not yet supported for AI reading.
             </p>
           )}
         </div>
@@ -471,7 +472,7 @@ export default function CreateDietPlan() {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
-                {labMarkers.length > 0 ? '✨ Generate AI Plan (with Lab Results)' : '✨ Generate AI Diet Plan'}
+                {labMarkers.length > 0 ? 'Generate AI Plan (with Lab Results)' : 'Generate AI Diet Plan'}
               </>
             )}
           </button>
@@ -481,7 +482,7 @@ export default function CreateDietPlan() {
 
       {aiError && (
         <div style={{ margin: '0 0 1rem', padding: '0.75rem 1rem', background: '#fee2e2', borderRadius: '8px', color: '#dc2626', fontSize: '0.85rem' }}>
-          ⚠️ {aiError}
+          <AlertTriangle size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} />{aiError}
         </div>
       )}
 
@@ -563,7 +564,7 @@ export default function CreateDietPlan() {
                     <button key={type}
                       className={`cdp-diet-btn ${plan.dietType === type ? 'cdp-diet-btn--active' : ''}`}
                       onClick={() => setPlanField('dietType', type)}>
-                      {type === 'Vegetarian' ? '🥦' : type === 'Non-Vegetarian' ? '🍗' : '🌱'} {type}
+                      {type}
                     </button>
                   ))}
                 </div>
@@ -589,10 +590,9 @@ export default function CreateDietPlan() {
           </div>
 
           <div className="cdp-meals-grid">
-            {MEAL_SLOTS.map(({ key, label, emoji, time }) => (
+            {MEAL_SLOTS.map(({ key, label, time }) => (
               <div key={key} className="cdp-meal-card">
                 <div className="cdp-meal-head">
-                  <span className="cdp-meal-emoji">{emoji}</span>
                   <div>
                     <div className="cdp-meal-label">{label}</div>
                     <div className="cdp-meal-time">{time}</div>
@@ -717,7 +717,7 @@ export default function CreateDietPlan() {
                   onChange={e => e.target.files[0] && setFiles(prev => ({ ...prev, chart: e.target.files[0] }))} />
                 {files.chart ? (
                   <>
-                    <span className="cdp-dz-file-icon">🖼️</span>
+                    <span className="cdp-dz-file-icon"><Icon name="upload" /></span>
                     <span className="cdp-dz-filename">{files.chart.name}</span>
                     <span className="cdp-dz-replace">Click to replace</span>
                   </>
@@ -742,7 +742,7 @@ export default function CreateDietPlan() {
                   onChange={e => e.target.files[0] && setFiles(prev => ({ ...prev, pdf: e.target.files[0] }))} />
                 {files.pdf ? (
                   <>
-                    <span className="cdp-dz-file-icon">📄</span>
+                    <span className="cdp-dz-file-icon"><Icon name="pdf" /></span>
                     <span className="cdp-dz-filename">{files.pdf.name}</span>
                     <span className="cdp-dz-replace">Click to replace</span>
                   </>

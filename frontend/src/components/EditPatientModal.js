@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '../lib/supabaseClient';
+import { ClipboardList, Stethoscope, Leaf, Utensils, Calendar, Pencil, X } from 'lucide-react';
 /* Reuse AddPatientModal styles — same design language */
 import './AddPatientModal.css';
 import './EditPatientModal.css';
@@ -18,7 +19,7 @@ const STRESS_OPTIONS   = ['Low', 'Moderate', 'High', 'Severe'];
 const ACTIVITY_OPTIONS = ['Sedentary', 'Lightly Active', 'Moderately Active', 'Very Active'];
 const WORK_OPTIONS     = ['Work from Home', 'Office / Field', 'Physical Labour', 'Student', 'Homemaker', 'Other'];
 const MEAL_OPTIONS     = ['1–2 meals/day', '3 meals/day', '3 meals + snacks', 'Intermittent fasting'];
-const BUDGET_OPTIONS   = ['Under ₦5,000/wk', '₦5,000–10,000/wk', '₦10,000–20,000/wk', '₦20,000+/wk'];
+const BUDGET_OPTIONS   = ['Under ₹500/wk', '₹500–1,000/wk', '₹1,000–2,000/wk', '₹2,000+/wk'];
 const MENSTRUAL_OPTIONS= ['Regular', 'Irregular', 'Heavy bleeding', 'Painful periods', 'Absent (amenorrhea)', 'Post-menopausal', 'Not applicable'];
 const CONSULT_STATUSES = ['Scheduled', 'Completed', 'Pending', 'Cancelled', 'Upcoming'];
 const PATIENT_STATUSES = ['Active', 'Pending', 'Inactive'];
@@ -217,7 +218,7 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
         {/* ── Header ── */}
         <div className="apm-header epm-header">
           <div className="apm-header__left">
-            <div className="apm-header__icon epm-icon">✏️</div>
+            <div className="apm-header__icon epm-icon"><Pencil size={20} /></div>
             <div>
               <h2 className="apm-header__title">Edit Patient</h2>
               <p className="apm-header__sub">
@@ -226,12 +227,12 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
               </p>
             </div>
           </div>
-          <button className="apm-close" onClick={handleClose} aria-label="Close">✕</button>
+          <button className="apm-close" onClick={handleClose} aria-label="Close"><X size={18} /></button>
         </div>
 
         {/* ── Changed fields notice ── */}
         <div className="epm-notice">
-          <span>🔵</span>
+          <span className="epm-notice__dot" />
           <span>Fields with a blue dot have been modified from the original value.</span>
         </div>
 
@@ -240,7 +241,7 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
 
             {/* ── 1. Basic Information ── */}
             <section className="apm-section">
-              <SectionHeader step="1" icon="📋" title="Basic Information" subtitle="Patient personal details" />
+              <SectionHeader step="1" icon={<ClipboardList size={16} />} title="Basic Information" subtitle="Patient personal details" />
               <div className="apm-grid">
 
                 <Field label="Patient Name" required error={errors.name}>
@@ -296,7 +297,7 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
 
             {/* ── 2. Medical Information ── */}
             <section className="apm-section">
-              <SectionHeader step="2" icon="🩺" title="Medical Information" subtitle="Health conditions and history" />
+              <SectionHeader step="2" icon={<Stethoscope size={16} />} title="Medical Information" subtitle="Health conditions and history" />
               <div className="apm-grid">
 
                 <Field label="Primary Condition" required error={errors.condition}>
@@ -340,7 +341,7 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
 
             {/* ── 3. Lifestyle ── */}
             <section className="apm-section">
-              <SectionHeader step="3" icon="🌿" title="Lifestyle" subtitle="Daily habits and wellness indicators" />
+              <SectionHeader step="3" icon={<Leaf size={16} />} title="Lifestyle" subtitle="Daily habits and wellness indicators" />
               <div className="apm-grid">
 
                 <Field label="Sleep">
@@ -388,7 +389,7 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
 
             {/* ── 4. Food Habits ── */}
             <section className="apm-section">
-              <SectionHeader step="4" icon="🥗" title="Food Habits" subtitle="Dietary preferences and patterns" />
+              <SectionHeader step="4" icon={<Utensils size={16} />} title="Food Habits" subtitle="Dietary preferences and patterns" />
               <div className="apm-grid">
 
                 <Field label="Diet Type">
@@ -439,7 +440,7 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
 
             {/* ── 5. Status & Consultation ── */}
             <section className="apm-section">
-              <SectionHeader step="5" icon="📅" title="Status & Consultation" subtitle="Current patient and consultation state" />
+              <SectionHeader step="5" icon={<Calendar size={16} />} title="Status & Consultation" subtitle="Current patient and consultation state" />
               <div className="apm-grid">
 
                 <Field label="Patient Status">
@@ -467,7 +468,7 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
                         <button key={s} type="button"
                           className={`apm-toggle ${form.paymentStatus === s ? `apm-toggle--active-${s.toLowerCase()}` : ''}`}
                           onClick={() => setForm(prev => ({ ...prev, paymentStatus: s }))}>
-                          {s === 'Paid' ? '✓ Paid' : s === 'Pending' ? '⏳ Pending' : '⚠️ Overdue'}
+                          {s}
                         </button>
                       ))}
                     </div>
@@ -486,9 +487,9 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
                   </div>
                 </Field>
 
-                <Field label="Amount Paid (₦)">
+                <Field label="Amount Paid (₹)">
                   <div className="epm-input-wrap">
-                    <Input type="text" placeholder="e.g. ₦15,000"
+                    <Input type="text" placeholder="e.g. ₹15,000"
                       value={form.amountPaid} onChange={set('amountPaid')} />
                     <ChangedDot original={orig.amountPaid} current={form.amountPaid} />
                   </div>
@@ -517,7 +518,7 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
 
             {/* ── 6. Consultation Details ── */}
             <section className="apm-section apm-section--last">
-              <SectionHeader step="6" icon="🗓️" title="Consultation Details" subtitle="Booking date, time and doctor assignment" />
+              <SectionHeader step="6" icon={<Calendar size={16} />} title="Consultation Details" subtitle="Booking date, time and doctor assignment" />
               <div className="apm-grid">
 
                 <Field label="Consultation Date">
@@ -665,7 +666,7 @@ export default function EditPatientModal({ open, patient, onClose, onUpdate }) {
               <button type="submit" className="apm-btn apm-btn--save epm-btn-update" disabled={saving}>
                 {saving
                   ? <><span className="apm-spinner" /> Updating…</>
-                  : '✓ Update Patient'
+                  : 'Update Patient'
                 }
               </button>
             </div>

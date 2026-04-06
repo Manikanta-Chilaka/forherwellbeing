@@ -16,8 +16,8 @@ import DietView from './pages/DietView';
 
 supabase.from('patients').select('count', { count: 'exact', head: true })
   .then(({ count, error }) => {
-    if (error) console.error('❌ Supabase connection failed:', error.message);
-    else console.log(`✅ Supabase connected. Patients table row count: ${count}`);
+    if (error) console.error('Supabase connection failed:', error.message);
+    else console.log(`Supabase connected. Patients table row count: ${count}`);
   });
 
 function PublicLayout({ children }) {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { ClipboardList, Stethoscope, Leaf, Utensils, FolderOpen, FileText, User, AlertCircle, X } from 'lucide-react';
 import './AddPatientModal.css';
 
 /* ─── Options ───────────────────────────────────────── */
@@ -14,7 +15,7 @@ const STRESS_OPTIONS   = ['Low', 'Moderate', 'High', 'Severe'];
 const ACTIVITY_OPTIONS = ['Sedentary', 'Lightly Active', 'Moderately Active', 'Very Active'];
 const WORK_OPTIONS     = ['Work from Home', 'Office / Field', 'Physical Labour', 'Student', 'Homemaker', 'Other'];
 const MEAL_OPTIONS     = ['1–2 meals/day', '3 meals/day', '3 meals + snacks', 'Intermittent fasting'];
-const BUDGET_OPTIONS   = ['Under ₦5,000/wk', '₦5,000–10,000/wk', '₦10,000–20,000/wk', '₦20,000+/wk'];
+const BUDGET_OPTIONS   = ['Under ₹500/wk', '₹500–1,000/wk', '₹1,000–2,000/wk', '₹2,000+/wk'];
 const MENSTRUAL_OPTIONS = ['Regular', 'Irregular', 'Heavy bleeding', 'Painful periods', 'Absent (amenorrhea)', 'Post-menopausal', 'Not applicable'];
 
 /* ─── Initial state ─────────────────────────────────── */
@@ -129,7 +130,7 @@ function ReportUpload({ files, onChange }) {
           style={{ display: 'none' }}
           onChange={e => handleFiles(e.target.files)}
         />
-        <span className="apm-upload-icon">📁</span>
+        <span className="apm-upload-icon"><FolderOpen size={32} /></span>
         <p className="apm-upload-text">
           <strong>Click to upload</strong> or drag & drop
         </p>
@@ -140,7 +141,7 @@ function ReportUpload({ files, onChange }) {
         <ul className="apm-file-list">
           {files.map(f => (
             <li key={f.name} className="apm-file-item">
-              <span className="apm-file-icon">📄</span>
+              <span className="apm-file-icon"><FileText size={16} /></span>
               <div className="apm-file-info">
                 <span className="apm-file-name">{f.name}</span>
                 <span className="apm-file-size">{formatSize(f.size)}</span>
@@ -150,7 +151,7 @@ function ReportUpload({ files, onChange }) {
                 className="apm-file-remove"
                 onClick={() => remove(f.name)}
                 aria-label={`Remove ${f.name}`}
-              >✕</button>
+              ><X size={14} /></button>
             </li>
           ))}
         </ul>
@@ -220,13 +221,13 @@ export default function AddPatientModal({ open, onClose, onSave }) {
         {/* ── Header ── */}
         <div className="apm-header">
           <div className="apm-header__left">
-            <div className="apm-header__icon">👤</div>
+            <div className="apm-header__icon"><User size={20} /></div>
             <div>
               <h2 className="apm-header__title">Add New Patient</h2>
               <p className="apm-header__sub">Complete the clinical intake form</p>
             </div>
           </div>
-          <button className="apm-close" onClick={handleClose} aria-label="Close">✕</button>
+          <button className="apm-close" onClick={handleClose} aria-label="Close"><X size={18} /></button>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
@@ -234,7 +235,7 @@ export default function AddPatientModal({ open, onClose, onSave }) {
 
             {/* ── Section 1: Basic ── */}
             <section className="apm-section">
-              <SectionHeader step="1" icon="📋" title="Basic Information" subtitle="Patient personal details" />
+              <SectionHeader step="1" icon={<ClipboardList size={16} />} title="Basic Information" subtitle="Patient personal details" />
               <div className="apm-grid">
                 <Field label="Patient Name" required error={errors.name}>
                   <Input type="text" placeholder="e.g. Amaka Okonkwo"
@@ -270,7 +271,7 @@ export default function AddPatientModal({ open, onClose, onSave }) {
 
             {/* ── Section 2: Medical ── */}
             <section className="apm-section">
-              <SectionHeader step="2" icon="🩺" title="Medical Information" subtitle="Health conditions and history" />
+              <SectionHeader step="2" icon={<Stethoscope size={16} />} title="Medical Information" subtitle="Health conditions and history" />
               <div className="apm-grid">
                 <Field label="Primary Condition" required error={errors.condition}>
                   <Select value={form.condition} onChange={set('condition')} error={errors.condition}>
@@ -300,7 +301,7 @@ export default function AddPatientModal({ open, onClose, onSave }) {
 
             {/* ── Section 3: Lifestyle ── */}
             <section className="apm-section">
-              <SectionHeader step="3" icon="🌿" title="Lifestyle" subtitle="Daily habits and wellness indicators" />
+              <SectionHeader step="3" icon={<Leaf size={16} />} title="Lifestyle" subtitle="Daily habits and wellness indicators" />
               <div className="apm-grid">
                 <Field label="Sleep">
                   <Select value={form.sleep} onChange={set('sleep')}>
@@ -334,7 +335,7 @@ export default function AddPatientModal({ open, onClose, onSave }) {
 
             {/* ── Section 4: Food Habits ── */}
             <section className="apm-section">
-              <SectionHeader step="4" icon="🥗" title="Food Habits" subtitle="Dietary preferences and patterns" />
+              <SectionHeader step="4" icon={<Utensils size={16} />} title="Food Habits" subtitle="Dietary preferences and patterns" />
               <div className="apm-grid">
                 <Field label="Diet Type">
                   <div className="apm-toggle-group">
@@ -374,7 +375,7 @@ export default function AddPatientModal({ open, onClose, onSave }) {
 
             {/* ── Section 5: Reports ── */}
             <section className="apm-section apm-section--last">
-              <SectionHeader step="5" icon="📁" title="Reports" subtitle="Upload any existing lab or medical reports" />
+              <SectionHeader step="5" icon={<FolderOpen size={16} />} title="Reports" subtitle="Upload any existing lab or medical reports" />
               <div className="apm-grid">
                 <ReportUpload
                   files={form.reports}
@@ -390,7 +391,7 @@ export default function AddPatientModal({ open, onClose, onSave }) {
             <div>
               <p className="apm-footer__hint"><span className="apm-required">*</span> Required fields</p>
               {errors.submit && (
-                <p className="apm-submit-error">⚠️ {errors.submit}</p>
+                <p className="apm-submit-error"><AlertCircle size={14} /> {errors.submit}</p>
               )}
             </div>
             <div className="apm-footer__btns">
@@ -398,7 +399,7 @@ export default function AddPatientModal({ open, onClose, onSave }) {
                 Cancel
               </button>
               <button type="submit" className="apm-btn apm-btn--save" disabled={saving}>
-                {saving ? <><span className="apm-spinner" /> Saving…</> : '✓ Save Patient'}
+                {saving ? <><span className="apm-spinner" /> Saving…</> : 'Save Patient'}
               </button>
             </div>
           </div>
