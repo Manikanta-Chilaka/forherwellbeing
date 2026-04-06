@@ -277,7 +277,6 @@
 }
 
 /* ── Tab content ────────────────────────────────────────── */
-.pd-tab-panel { }
 
 .pd-tab-content {
   display: flex;

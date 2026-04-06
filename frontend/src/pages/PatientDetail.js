@@ -11,7 +11,8 @@ import {
   Leaf, 
   Utensils, 
   Calendar,
-  FolderOpen
+  FolderOpen,
+  ClipboardList
 } from 'lucide-react';
 import './PatientDetail.css';
 
