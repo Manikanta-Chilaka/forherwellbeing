@@ -1,9 +1,15 @@
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
+/* ─── Detect MIME type from URL/filename ─────────────────── */
+function getMimeType(url) {
+  const ext = url.split('?')[0].split('.').pop().toLowerCase();
+  const map = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif' };
+  return map[ext] || 'image/jpeg';
+}
 
+/* ─── Analyze Lab Report Images ──────────────────────────── */
 export async function analyzeLabReports(reportUrls) {
-  // We'll use URL-based fetching instead of inline data
   const prompt = `You are a clinical nutritionist analyzing lab reports.
 Look at the provided lab report image(s) and extract ALL lab markers you can find.
 
@@ -21,31 +27,42 @@ Status must be one of: "OPTIMAL", "HIGH", "LOW", "LOW-NORMAL", "HIGH-NORMAL", "B
 Be concise but clinically accurate in the significance field.
 Extract every marker visible in the report.`;
 
-  // Fetch images as base64 since Gemini needs inline data for URLs
+  // Fetch each image and convert to base64 inline data
   const imageDataParts = await Promise.all(
     reportUrls.map(async (url) => {
       try {
         const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const blob = await res.blob();
-        const base64 = await new Promise((resolve) => {
+
+        // Prefer MIME from URL extension — blob.type is often empty from Supabase
+        const mimeType = getMimeType(url) || blob.type || 'image/jpeg';
+
+        const base64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result.split(',')[1]);
+          reader.onloadend = () => {
+            const result = reader.result;
+            // result is like "data:image/jpeg;base64,/9j/..."
+            const b64 = result.split(',')[1];
+            if (!b64) reject(new Error('Empty base64'));
+            else resolve(b64);
+          };
+          reader.onerror = reject;
           reader.readAsDataURL(blob);
         });
-        return {
-          inlineData: {
-            mimeType: blob.type || 'image/jpeg',
-            data: base64,
-          },
-        };
-      } catch {
+
+        return { inlineData: { mimeType, data: base64 } };
+      } catch (err) {
+        console.warn('Could not load image:', url, err.message);
         return null;
       }
     })
   );
 
   const validParts = imageDataParts.filter(Boolean);
-  if (validParts.length === 0) throw new Error('Could not load report images.');
+  if (validParts.length === 0) {
+    throw new Error('Could not load report images. Make sure they are JPG or PNG files.');
+  }
 
   const body = {
     contents: [{
@@ -63,7 +80,16 @@ Extract every marker visible in the report.`;
     body: JSON.stringify(body),
   });
 
-  if (!res.ok) throw new Error(`Gemini API error: ${res.status}`);
+  if (!res.ok) {
+    // Show the actual Gemini error message
+    let errMsg = `Gemini API error: ${res.status}`;
+    try {
+      const errBody = await res.json();
+      errMsg = errBody?.error?.message || errMsg;
+    } catch (_) {}
+    throw new Error(errMsg);
+  }
+
   const data = await res.json();
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
 
@@ -71,6 +97,7 @@ Extract every marker visible in the report.`;
   const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
   return JSON.parse(cleaned);
 }
+
 
 /* ─── Generate Diet Plan from Lab Results + Patient Data ─
    Generates a complete structured diet plan.
