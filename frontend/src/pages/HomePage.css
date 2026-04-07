@@ -459,6 +459,28 @@
   margin: 0 auto;
 }
 
+.cta-banner__quote {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: rgba(255,255,255,0.85);
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  line-height: 1.75;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.cta-banner__quote-attr {
+  font-style: normal;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  display: block;
+  margin-top: 0.5rem;
+  font-family: 'Inter', sans-serif;
+}
+
 .cta-banner__title {
   font-size: clamp(1.5rem, 3vw, 2.25rem);
   color: var(--white);
@@ -572,6 +594,132 @@
 .form-group textarea:focus {
   border-color: var(--primary-light);
   box-shadow: 0 0 0 3px rgba(139, 79, 124, 0.1);
+}
+
+/* ── Authority Bar ─────────────────────────────────────── */
+.authority {
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 2rem;
+}
+
+.authority__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.authority__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.75rem;
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.authority__item:last-child {
+  border-right: none;
+}
+
+.authority__icon {
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.authority__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  letter-spacing: 0.01em;
+}
+
+/* ── Outcome Services ──────────────────────────────────── */
+.outcomes {
+  padding: 6rem 0;
+  background: var(--cream);
+}
+
+.outcomes__sub {
+  text-align: center;
+  color: var(--text-mid);
+  font-size: 0.95rem;
+  max-width: 520px;
+  margin: 0 auto 3rem;
+  line-height: 1.75;
+}
+
+.outcomes__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.outcome-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.75rem 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.outcome-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(139, 79, 124, 0.1);
+}
+
+.outcome-card__top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.outcome-card__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent-light, #F5EBF3);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.outcome-card__category {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary);
+}
+
+.outcome-card__headline {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.outcome-card__desc {
+  font-size: 0.855rem;
+  color: var(--text-mid);
+  line-height: 1.65;
+}
+
+.outcomes__cta {
+  text-align: center;
 }
 
 /* ── How It Works ──────────────────────────────────────── */
@@ -796,12 +944,11 @@
   box-shadow: 0 8px 28px rgba(139, 79, 124, 0.12);
 }
 
-.tcard__quote-icon {
-  font-size: 2.5rem;
-  font-family: Georgia, serif;
-  color: var(--primary-light, #b57aa8);
-  line-height: 1;
-  margin-bottom: -0.25rem;
+.tcard__stars {
+  display: flex;
+  gap: 2px;
+  color: #f59e0b;
+  margin-bottom: 0.75rem;
 }
 
 .tcard__text {
@@ -961,8 +1108,18 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .sp__grid {
+  .outcomes__grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .authority__item {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1.25rem;
+  }
+
+  .authority__item:last-child {
+    border-bottom: none;
   }
 }
 
@@ -975,7 +1132,7 @@
 
   .footer__inner { gap: 2.5rem; }
 
-  .sp__grid { grid-template-columns: 1fr; }
+  .outcomes__grid { grid-template-columns: 1fr; }
 
   .hiw__steps { grid-template-columns: 1fr; }
 }
