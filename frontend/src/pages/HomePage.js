@@ -4,7 +4,7 @@ import {
   Award, GraduationCap, Heart, Users, Clock,
   Activity, Scale, Shield, Sun, Brain,
   Calendar, ClipboardCheck, UserCheck, Sparkles,
-  ArrowRight
+  ArrowRight, BookOpen
 } from 'lucide-react';
 import doctorPhoto from '../assets/WhatsApp-Image-2025-07-02-at-1.11.59-PM.jpg';
 import Footer from '../components/Footer';
@@ -284,6 +284,65 @@ function HowItWorks() {
   );
 }
 
+/* ─── Insights Hub ───────────────────────────────────── */
+const FEATURED_ARTICLES = [
+  {
+    category: 'Hormonal Health',
+    color: 'sage',
+    title: 'The Gut-Hormone Connection: How Your Microbiome Shapes Your Cycle',
+    excerpt: 'Emerging research reveals that your gut microbes directly influence oestrogen metabolism, mood, and menstrual health.',
+    readTime: '5 min',
+  },
+  {
+    category: 'PCOS & Metabolism',
+    color: 'teal',
+    title: 'Nutritional Science of PCOS: What the Research Actually Shows',
+    excerpt: 'A deep dive into insulin resistance, androgen pathways, and dietary interventions backed by clinical trials.',
+    readTime: '7 min',
+  },
+  {
+    category: 'Mind & Body',
+    color: 'warm',
+    title: 'The Neuroscience of Meditation: How Stillness Rewires the Stressed Brain',
+    excerpt: 'Studies confirm that eight weeks of consistent practice measurably reduces cortisol and strengthens prefrontal regulation.',
+    readTime: '4 min',
+  },
+];
+
+function InsightsHub() {
+  return (
+    <section className="insights-hub">
+      <div className="section-inner">
+        <div className="insights-hub__head">
+          <div>
+            <p className="section-eyebrow">The Knowledge Hub</p>
+            <h2 className="section-title">Science Decoded<br />for Real Women</h2>
+            <p className="insights-hub__sub">
+              Evidence-based insights that help you understand your body — clearly, honestly, without the medical jargon.
+            </p>
+          </div>
+          <Link to="/insights" className="sp__link insights-hub__all">
+            Explore All Articles <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        <div className="insights-hub__grid">
+          {FEATURED_ARTICLES.map(({ category, color, title, excerpt, readTime }) => (
+            <article className={`ihub-card ihub-card--${color}`} key={title}>
+              <span className="ihub-card__cat">{category}</span>
+              <h3 className="ihub-card__title">{title}</h3>
+              <p className="ihub-card__excerpt">{excerpt}</p>
+              <Link to="/insights" className="ihub-card__read">
+                <BookOpen size={14} /> {readTime} read
+              </Link>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ─── CTA Banner ─────────────────────────────────────── */
 function CTABanner() {
   return (
@@ -323,6 +382,7 @@ export default function HomePage() {
       <OutcomeServices />
       <Testimonials />
       <HowItWorks />
+      <InsightsHub />
       <CTABanner />
       <Footer />
     </>

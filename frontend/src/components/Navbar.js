@@ -30,6 +30,7 @@ export default function Navbar() {
         <ul className={`navbar__links ${menuOpen ? 'navbar__links--open' : ''}`}>
           <li><Link to="/about"    className={isActive('/about')}    onClick={close}>About</Link></li>
           <li><Link to="/services" className={isActive('/services')} onClick={close}>Services</Link></li>
+          <li><Link to="/insights" className={isActive('/insights')} onClick={close}>Insights</Link></li>
           <li><Link to="/contact"  className={isActive('/contact')}  onClick={close}>Contact</Link></li>
         </ul>
 
