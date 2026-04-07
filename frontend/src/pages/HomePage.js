@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import LeadMagnetModal from '../components/LeadMagnetModal';
 import {
   Award, GraduationCap, Heart, Users, Clock,
   Activity, Scale, Shield, Sun, Brain,
@@ -283,6 +284,72 @@ function HowItWorks() {
   );
 }
 
+/* ─── Free Resources ─────────────────────────────────── */
+const RESOURCES = [
+  {
+    id: 'meal-guide',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="6" cy="6" r="1" fill="currentColor"/><circle cx="6" cy="12" r="1" fill="currentColor"/><circle cx="6" cy="18" r="1" fill="currentColor"/></svg>,
+    iconBg: 'var(--accent-light)',
+    title: '7-Day Hormone-Balancing Meal Guide',
+    desc: 'A done-for-you weekly meal plan designed to reduce inflammation and support hormonal balance — with shopping list included.',
+    tag: 'Meal Plan',
+    tagColor: 'sage',
+  },
+  {
+    id: 'hormone-checklist',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 12l2 2 4-4"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>,
+    iconBg: '#E8F4F0',
+    title: 'Hormone Health Symptom Checklist',
+    desc: 'A self-assessment tool to identify signs of hormonal imbalance — including PCOS, thyroid, and oestrogen dominance — before your consultation.',
+    tag: 'Self-Assessment',
+    tagColor: 'teal',
+  },
+  {
+    id: 'grocery-list',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>,
+    iconBg: '#FFF3E8',
+    title: 'The Healthy Grocery List for Women',
+    desc: 'A nutritionist-curated shopping list of anti-inflammatory, hormone-supportive foods — organised by category for your next supermarket visit.',
+    tag: 'Grocery Guide',
+    tagColor: 'warm',
+  },
+];
+
+function FreeResources() {
+  const [active, setActive] = useState(null);
+  return (
+    <section className="free-resources">
+      {active && <LeadMagnetModal resource={active} onClose={() => setActive(null)} />}
+      <div className="section-inner">
+        <div className="free-resources__head">
+          <p className="section-eyebrow" style={{ textAlign: 'center' }}>Free for You</p>
+          <h2 className="section-title" style={{ textAlign: 'center' }}>
+            Start Your Journey<br />Before Your First Consultation
+          </h2>
+          <p className="free-resources__sub">
+            Download these free guides — created by Dr. Ragadeepthi — and take your first steps toward better health today.
+          </p>
+        </div>
+        <div className="free-resources__grid">
+          {RESOURCES.map((res) => (
+            <div className={`res-card res-card--${res.tagColor}`} key={res.id}>
+              <div className="res-card__icon" style={{ background: res.iconBg }}>
+                {res.icon}
+              </div>
+              <span className="res-card__tag">{res.tag}</span>
+              <h3 className="res-card__title">{res.title}</h3>
+              <p className="res-card__desc">{res.desc}</p>
+              <button className="res-card__btn" onClick={() => setActive(res)}>
+                Get Free Guide
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ─── Insights Hub ───────────────────────────────────── */
 const FEATURED_ARTICLES = [
   {
@@ -381,6 +448,7 @@ export default function HomePage() {
       <OutcomeServices />
       <Testimonials />
       <HowItWorks />
+      <FreeResources />
       <InsightsHub />
       <CTABanner />
       <Footer />
