@@ -33,7 +33,7 @@ export default function Navbar() {
           <li><Link to="/contact"  className={isActive('/contact')}  onClick={close}>Contact</Link></li>
         </ul>
 
-        <Link to="/contact" className="navbar__cta" onClick={close}>Book Consultation</Link>
+        <Link to="/contact" className="navbar__cta" onClick={close}>Get My Diet Plan</Link>
 
         <button
           className={`navbar__burger ${menuOpen ? 'navbar__burger--open' : ''}`}

@@ -2,7 +2,7 @@
 .pd-page {
   min-height: 100vh;
   background: #f1f5f9;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
 }
 
 /* ── Top bar ────────────────────────────────────────────── */
@@ -23,7 +23,7 @@
   border: none;
   font-size: 0.875rem;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   color: #1e5799;
   cursor: pointer;
   display: flex;
@@ -47,7 +47,7 @@
   border-radius: 9px;
   font-size: 0.845rem;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   cursor: pointer;
   border: none;
   transition: all 0.18s;
@@ -89,7 +89,7 @@
   background: rgba(255,255,255,0.2);
   border: 2px solid rgba(255,255,255,0.35);
   color: #fff;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.6rem;
   font-weight: 700;
   display: flex;
@@ -99,7 +99,7 @@
 }
 
 .pd-header__name {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.6rem;
   font-weight: 700;
   color: #fff;
@@ -157,7 +157,7 @@
   border-radius: 50%;
   background: linear-gradient(135deg, #dbeafe, #bfdbfe);
   color: #1e5799;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.4rem;
   font-weight: 700;
   display: flex;
@@ -167,7 +167,7 @@
 }
 
 .pd-summary__name {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1rem;
   font-weight: 700;
   color: #0f172a;
@@ -260,7 +260,7 @@
   background: transparent;
   font-size: 0.82rem;
   font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   color: #64748b;
   cursor: pointer;
   transition: all 0.15s;
@@ -305,7 +305,7 @@
 .pd-card__icon { font-size: 1rem; }
 
 .pd-card__title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.95rem;
   font-weight: 700;
   color: #0f172a;
@@ -492,11 +492,11 @@
   gap: 0.75rem;
   text-align: center;
   padding: 2rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
 }
 
 .pd-not-found__emoji { font-size: 3rem; }
-.pd-not-found h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #0f172a; }
+.pd-not-found h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: #0f172a; }
 .pd-not-found p  { font-size: 0.9rem; color: #64748b; margin-bottom: 1rem; }
 
 /* ── Reports Tab ────────────────────────────────────────── */

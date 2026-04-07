@@ -65,7 +65,7 @@
 }
 
 .apm-header__title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.2rem;
   font-weight: 700;
   color: #0f172a;
@@ -206,7 +206,7 @@
   width: 100%;
   padding: 0.65rem 0.9rem;
   font-size: 0.855rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   color: #0f172a;
   background: #f8fafc;
   border: 1.5px solid #e2e8f0;
@@ -289,7 +289,7 @@
   background: #f8fafc;
   font-size: 0.8rem;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   color: #64748b;
   cursor: pointer;
   transition: all 0.18s;
@@ -481,7 +481,7 @@
   border: none;
   font-size: 0.855rem;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   cursor: pointer;
   transition: all 0.18s;
   white-space: nowrap;

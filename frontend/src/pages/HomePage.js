@@ -33,8 +33,12 @@ function Hero() {
           who truly understands.
         </p>
         <div className="hero__actions">
-          <Link to="/contact" className="btn btn--primary">Book Your Consultation</Link>
+          <Link to="/contact" className="btn btn--primary">Get My Personalized Diet Plan</Link>
+          <Link to="/contact" className="btn btn--ghost">Take Free Health Assessment</Link>
         </div>
+        <p className="hero__helper">
+          Answer a few questions and get your science-based nutrition direction.
+        </p>
 
         <div className="hero__stats">
           <div className="stat">
@@ -293,12 +297,13 @@ function CTABanner() {
         <h2 className="cta-banner__title">Ready to Start Your Wellness Journey?</h2>
         <p className="cta-banner__sub">
           Join over 100 women who have transformed their health with personalised,
-          expert-led care. Your consultation is the first step.
+          expert-led care. Your first step takes less than 2 minutes.
         </p>
         <div className="cta-banner__actions">
-          <Link to="/contact" className="btn btn--white">Book Your Consultation</Link>
+          <Link to="/contact" className="btn btn--white">I Want Results Like This</Link>
           <Link to="/about" className="btn btn--outline-white">Meet Dr. Ragadeepthi</Link>
         </div>
+        <p className="cta-banner__trust">Trusted by 100+ women &bull; No generic diet charts &bull; Science-backed approach</p>
       </div>
     </section>
   );

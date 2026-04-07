@@ -3,7 +3,7 @@
   display: flex;
   min-height: 100vh;
   background: #f1f5f9;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
 }
 
 .dd-main {
@@ -45,7 +45,7 @@
 }
 
 .dd-sidebar__logo {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -88,7 +88,7 @@
   color: rgba(255,255,255,0.65);
   font-size: 0.875rem;
   font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
   white-space: nowrap;
@@ -153,7 +153,7 @@
   color: #fca5a5;
   font-size: 0.8rem;
   font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   cursor: pointer;
   transition: background 0.2s;
   width: 100%;
@@ -175,7 +175,7 @@
 }
 
 .dd-topbar__title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.2rem;
   font-weight: 700;
   color: #0f172a;
@@ -275,7 +275,7 @@
 .dd-stat--amber  .dd-stat__icon { background: #fffbeb; }
 
 .dd-stat__value {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.9rem;
   font-weight: 700;
 }
@@ -310,7 +310,7 @@
 }
 
 .dd-card__title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.05rem;
   font-weight: 700;
   color: #0f172a;
@@ -339,7 +339,7 @@
   border: none;
   background: transparent;
   font-size: 0.82rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   color: #0f172a;
   outline: none;
   width: 200px;
@@ -447,7 +447,7 @@
 
 /* ── Mark completed button ──────────────────────────────── */
 .dd-btn {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   font-size: 0.78rem;
   font-weight: 600;
   padding: 0.45rem 0.9rem;
@@ -615,7 +615,7 @@
 }
 
 .gd-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.1rem;
   font-weight: 700;
   color: #0f172a;
@@ -686,7 +686,7 @@
   width: 100%;
   padding: 0.65rem 0.9rem;
   font-size: 0.855rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   color: #0f172a;
   background: #f8fafc;
   border: 1.5px solid #e2e8f0;
@@ -734,7 +734,7 @@
   width: 100%;
   padding: 0.6rem 0.85rem;
   font-size: 0.845rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   color: #0f172a;
   background: #f8fafc;
   border: 1.5px solid #e2e8f0;
@@ -802,7 +802,7 @@
   border: none;
   font-size: 0.855rem;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   cursor: pointer;
   transition: all 0.18s;
 }

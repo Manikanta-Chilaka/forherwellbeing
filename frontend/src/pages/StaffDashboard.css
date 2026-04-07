@@ -3,7 +3,7 @@
   display: flex;
   min-height: 100vh;
   background: #f1f5f9;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
 }
 
 .sd-main {
@@ -48,7 +48,7 @@
 }
 
 .sd-sidebar__logo {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -201,7 +201,7 @@
 }
 
 .sd-topbar__title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.2rem;
   font-weight: 700;
   color: #0f172a;
@@ -301,7 +301,7 @@
 .sd-stat--green  .sd-stat__icon { background: #f0fdf4; }
 
 .sd-stat__value {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 2rem;
   font-weight: 700;
 }
@@ -341,7 +341,7 @@
 }
 
 .sd-card__title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.05rem;
   font-weight: 700;
   color: #0f172a;
@@ -417,7 +417,7 @@
   border: none;
   background: transparent;
   font-size: 0.82rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   color: #0f172a;
   outline: none;
   width: 180px;
@@ -618,7 +618,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
 }
 
 .sd-quick-icon { font-size: 1.4rem; }
@@ -727,7 +727,7 @@
 }
 
 .bsm-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 1.1rem;
   font-weight: 700;
   color: #0f172a;
@@ -796,7 +796,7 @@
   width: 100%;
   padding: 0.65rem 0.9rem;
   font-size: 0.855rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   color: #0f172a;
   background: #f8fafc;
   border: 1.5px solid #e2e8f0;
@@ -844,7 +844,7 @@
   border: none;
   font-size: 0.855rem;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Switzer', sans-serif;
   cursor: pointer;
   transition: all 0.18s;
 }
