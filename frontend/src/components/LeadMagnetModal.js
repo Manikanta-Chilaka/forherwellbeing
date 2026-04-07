@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
-import { X, CheckCircle } from 'lucide-react';
+import { X, CheckCircle, Loader } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
 import './LeadMagnetModal.css';
+
+const EDGE_URL = `${process.env.REACT_APP_SUPABASE_URL}/functions/v1/send-lead-guide`;
 
 export default function LeadMagnetModal({ resource, onClose }) {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   // Lock body scroll while modal is open
   useEffect(() => {
@@ -12,9 +17,46 @@ export default function LeadMagnetModal({ resource, onClose }) {
     return () => { document.body.style.overflow = ''; };
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError('');
+
+    const form = e.target;
+    const name  = form.name.value.trim();
+    const email = form.email.value.trim();
+    const phone = form.phone.value.trim();
+
+    try {
+      // 1. Save lead to Supabase
+      const { error: dbError } = await supabase.from('leads').insert({
+        name,
+        email,
+        phone,
+        guide_id: resource.id,
+        guide_title: resource.title,
+      });
+      if (dbError) throw new Error(dbError.message);
+
+      // 2. Trigger edge function to send the guide email
+      const res = await fetch(EDGE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.REACT_APP_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ name, email, phone, guideId: resource.id }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send email');
+
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -29,10 +71,10 @@ export default function LeadMagnetModal({ resource, onClose }) {
             <div className="lm-success__icon">
               <CheckCircle size={36} strokeWidth={1.5} />
             </div>
-            <h3 className="lm-success__title">On its way!</h3>
+            <h3 className="lm-success__title">Check your inbox!</h3>
             <p className="lm-success__body">
-              Your <strong>{resource.title}</strong> has been sent to your email.
-              Check your inbox — it should arrive within a few minutes.
+              Your <strong>{resource.title}</strong> is on its way to your email.
+              It should arrive within a few minutes.
             </p>
             <button className="btn btn--primary lm-success__close" onClick={onClose}>
               Done
@@ -54,15 +96,15 @@ export default function LeadMagnetModal({ resource, onClose }) {
             <form className="lm-form" onSubmit={handleSubmit}>
               <div className="lm-field">
                 <label>Full Name</label>
-                <input type="text" placeholder="Your name" required />
+                <input name="name" type="text" placeholder="Your name" required />
               </div>
               <div className="lm-field">
                 <label>Email Address</label>
-                <input type="email" placeholder="you@example.com" required />
+                <input name="email" type="email" placeholder="you@example.com" required />
               </div>
               <div className="lm-field">
                 <label>Phone Number</label>
-                <input type="tel" placeholder="+91 00000 00000" required />
+                <input name="phone" type="tel" placeholder="+91 00000 00000" required />
               </div>
               <div className="lm-consent">
                 <label className="lm-consent__label">
@@ -73,8 +115,11 @@ export default function LeadMagnetModal({ resource, onClose }) {
                   </span>
                 </label>
               </div>
-              <button type="submit" className="btn btn--primary lm-submit">
-                Send Me the Free Guide
+
+              {error && <p className="lm-error">{error}</p>}
+
+              <button type="submit" className="btn btn--primary lm-submit" disabled={loading}>
+                {loading ? <><Loader size={15} className="lm-spinner" /> Sending…</> : 'Send Me the Free Guide'}
               </button>
               <p className="lm-trust">No spam. Unsubscribe anytime.</p>
             </form>
