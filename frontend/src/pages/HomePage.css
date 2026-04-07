@@ -309,9 +309,15 @@
 }
 
 .about__card-icon {
-  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
 .about__card h4 {
@@ -437,9 +443,15 @@
 }
 
 .service-card__icon {
-  font-size: 2rem;
-  display: block;
-  margin-bottom: 1rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--accent-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
 }
 
 .service-card__title {
@@ -547,8 +559,15 @@
 }
 
 .contact__detail-icon {
-  font-size: 1.25rem;
-  margin-top: 2px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--accent-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .contact__detail strong {

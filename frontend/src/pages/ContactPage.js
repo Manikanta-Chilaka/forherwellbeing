@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Phone, Mail, Clock } from 'lucide-react';
 import Footer from '../components/Footer';
 import './HomePage.css';
 
@@ -15,21 +16,21 @@ function Contact() {
           </p>
           <div className="contact__details">
             <div className="contact__detail">
-              <span className="contact__detail-icon">&#128222;</span>
+              <span className="contact__detail-icon"><Phone size={18} strokeWidth={1.5} /></span>
               <div>
                 <strong>Phone</strong>
                 <p>+000 000 0000</p>
               </div>
             </div>
             <div className="contact__detail">
-              <span className="contact__detail-icon">&#128140;</span>
+              <span className="contact__detail-icon"><Mail size={18} strokeWidth={1.5} /></span>
               <div>
                 <strong>Email</strong>
                 <p>hello@forherwellbeing.com</p>
               </div>
             </div>
             <div className="contact__detail">
-              <span className="contact__detail-icon">&#128336;</span>
+              <span className="contact__detail-icon"><Clock size={18} strokeWidth={1.5} /></span>
               <div>
                 <strong>Hours</strong>
                 <p>Monday – Saturday, 9am – 6pm</p>

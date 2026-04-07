@@ -1,9 +1,16 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Sprout, Users, Sun } from 'lucide-react';
 import Footer from '../components/Footer';
 import './HomePage.css';
 
 function About() {
+  const ABOUT_CARDS = [
+    { Icon: Sprout, title: 'Puberty',             desc: 'Compassionate guidance through hormonal and physical changes.' },
+    { Icon: Users,  title: 'Fertility & Pregnancy', desc: 'Support at every step of your reproductive journey.' },
+    { Icon: Sun,    title: 'Menopause',            desc: 'Expert care to navigate this significant life transition.' },
+  ];
+
   return (
     <section className="about page-section-top" id="about">
       <div className="section-inner">
@@ -25,13 +32,9 @@ function About() {
         </div>
 
         <div className="about__cards">
-          {[
-            { icon: '&#127801;', title: 'Puberty', desc: 'Compassionate guidance through hormonal and physical changes.' },
-            { icon: '&#129309;', title: 'Fertility & Pregnancy', desc: 'Support at every step of your reproductive journey.' },
-            { icon: '&#127774;', title: 'Menopause', desc: 'Expert care to navigate this significant life transition.' },
-          ].map(({ icon, title, desc }) => (
+          {ABOUT_CARDS.map(({ Icon, title, desc }) => (
             <div className="about__card" key={title}>
-              <span className="about__card-icon" dangerouslySetInnerHTML={{ __html: icon }} />
+              <span className="about__card-icon"><Icon size={22} strokeWidth={1.5} /></span>
               <h4>{title}</h4>
               <p>{desc}</p>
             </div>
