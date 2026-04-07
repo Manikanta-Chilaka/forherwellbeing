@@ -39,7 +39,7 @@ export default function Footer() {
 
       <div className="footer__bottom">
         <p>&copy; {new Date().getFullYear()} ForHerWellbeing. All rights reserved.</p>
-        <p>Built with care for women's health.</p>
+        <Link to="/privacy" style={{ color: 'inherit' }}>Privacy Policy</Link>
       </div>
     </footer>
   );

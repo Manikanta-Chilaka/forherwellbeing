@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Phone, Mail, Clock, CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
 import './HomePage.css';
 import './ContactPage.css';
@@ -114,6 +115,16 @@ function Contact() {
                 </label>
               ))}
             </div>
+          </div>
+
+          <div className="form-group form-group--consent">
+            <label className="consent-label">
+              <input type="checkbox" required />
+              <span>
+                I agree to the <Link to="/privacy">Privacy Policy</Link> and consent to my data being
+                used for personalised nutrition guidance.
+              </span>
+            </label>
           </div>
 
           <button type="submit" className="btn btn--primary" style={{ width: '100%', marginTop: '0.5rem' }}>

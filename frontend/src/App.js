@@ -8,6 +8,7 @@ import AboutPage from './pages/AboutPage';
 import ServicesPage from './pages/ServicesPage';
 import ContactPage from './pages/ContactPage';
 import InsightsPage from './pages/InsightsPage';
+import PrivacyPage from './pages/PrivacyPage';
 import StaffLogin from './pages/StaffLogin';
 import DoctorLogin from './pages/DoctorLogin';
 import StaffDashboard from './pages/StaffDashboard';
@@ -42,6 +43,7 @@ function App() {
           <Route path="/services" element={<PublicLayout><ServicesPage /></PublicLayout>} />
           <Route path="/contact"  element={<PublicLayout><ContactPage /></PublicLayout>} />
           <Route path="/insights" element={<PublicLayout><InsightsPage /></PublicLayout>} />
+          <Route path="/privacy"  element={<PublicLayout><PrivacyPage /></PublicLayout>} />
           <Route path="/staff"                    element={<StaffLogin />} />
           <Route path="/doctor"                   element={<DoctorLogin />} />
           <Route path="/staff/dashboard"          element={<StaffDashboard />} />
