@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { PatientsProvider } from './context/PatientsContext';
 import { supabase } from './lib/supabaseClient';
 import Navbar from './components/Navbar';
+import StickyCTA from './components/StickyCTA';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import ServicesPage from './pages/ServicesPage';
@@ -26,6 +27,7 @@ function PublicLayout({ children }) {
     <>
       <Navbar />
       <main>{children}</main>
+      <StickyCTA />
     </>
   );
 }

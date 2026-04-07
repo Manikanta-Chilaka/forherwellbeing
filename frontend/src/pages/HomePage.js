@@ -34,10 +34,9 @@ function Hero() {
         </p>
         <div className="hero__actions">
           <Link to="/contact" className="btn btn--primary">Get My Personalized Diet Plan</Link>
-          <Link to="/contact" className="btn btn--ghost">Take Free Health Assessment</Link>
         </div>
         <p className="hero__helper">
-          Answer a few questions and get your science-based nutrition direction.
+          Takes 2 minutes &bull; Personalised for your body &bull; Trusted by 100+ women
         </p>
 
         <div className="hero__stats">
