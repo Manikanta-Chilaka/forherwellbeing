@@ -16,6 +16,7 @@ import PatientDetail from './pages/PatientDetail';
 import DoctorDashboard from './pages/DoctorDashboard';
 import CreateDietPlan from './pages/CreateDietPlan';
 import DietView from './pages/DietView';
+import HealthAssessmentPage from './pages/HealthAssessmentPage';
 
 supabase.from('patients').select('count', { count: 'exact', head: true })
   .then(({ count, error }) => {
@@ -44,6 +45,7 @@ function App() {
           <Route path="/contact"  element={<PublicLayout><ContactPage /></PublicLayout>} />
           <Route path="/insights" element={<PublicLayout><InsightsPage /></PublicLayout>} />
           <Route path="/privacy"  element={<PublicLayout><PrivacyPage /></PublicLayout>} />
+          <Route path="/health-assessment" element={<PublicLayout><HealthAssessmentPage /></PublicLayout>} />
           <Route path="/staff"                    element={<StaffLogin />} />
           <Route path="/doctor"                   element={<DoctorLogin />} />
           <Route path="/staff/dashboard"          element={<StaffDashboard />} />

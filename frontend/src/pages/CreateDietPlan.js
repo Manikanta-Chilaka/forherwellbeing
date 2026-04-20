@@ -7,6 +7,7 @@ import { usePatients } from '../context/PatientsContext';
 import { getTemplate } from '../data/dietTemplates';
 import { supabase } from '../lib/supabaseClient';
 import { analyzeLabReports, generateAIDietPlan } from '../lib/geminiService';
+import { runDietEngine } from '../lib/dietEngine';
 import DietPlanPDF from '../components/DietPlanPDF';
 import './CreateDietPlan.css';
 
@@ -274,28 +275,43 @@ function Toast({ visible }) {
 /* ─── Seed state from template ───────────────────────── */
 function seedFromTemplate(patient) {
   const tmpl = getTemplate(patient?.condition);
-  const mealKeys = ['earlyMorning', 'breakfast', 'midMorning', 'lunch', 'eveningSnack', 'dinner'];
   const meals = initMeals();
-  tmpl.meals.forEach((m, i) => {
-    if (mealKeys[i]) meals[mealKeys[i]] = { items: m.items, quantity: '', calories: '', notes: m.notes };
+
+  // New schema: meal_structure.meals[{ slot, types[] }]
+  const slotKeyMap = {
+    'Early Morning': 'earlyMorning',
+    'Breakfast':     'breakfast',
+    'Mid Morning':   'midMorning',
+    'Lunch':         'lunch',
+    'Evening Snack': 'eveningSnack',
+    'Dinner':        'dinner',
+    'Bedtime':       'bedtime',
+  };
+  (tmpl?.meal_structure?.meals || []).forEach(m => {
+    const key = slotKeyMap[m.slot];
+    if (key) meals[key] = { items: '', quantity: '', calories: '', notes: m.types?.join(', ') || '' };
   });
+
+  const avoidTypes  = tmpl?.food_rules?.avoid_types || [];
+  const focusTypes  = tmpl?.food_rules?.recommended_types || [];
+
   return {
-    plan: {
-      title: patient?.condition ? `${patient.condition} Diet Plan` : '',
-      duration: '14',
-      startDate: '',
-      dietType: patient?.dietType || 'Non-Vegetarian',
-      calorieTarget: '',
-    },
+    planTitle:          patient?.condition ? `${patient.condition} Diet Plan` : '',
+    duration:           '14',
+    startDate:          '',
+    dietType:           patient?.dietType || 'Non-Vegetarian',
+    calorieTarget:      '',
+    detectedConditions: [],
     meals,
     restrictions: {
-      avoid:       tmpl.avoid.join(', '),
-      recommended: tmpl.supplements.join(', '),
+      avoid:       avoidTypes.join(', '),
+      recommended: focusTypes.join(', '),
       lifestyle:   '',
       water:       '2.5 litres / day',
       exercise:    '',
     },
-    doctorNotes: tmpl.goal,
+    supplements:  '',
+    doctorNotes:  tmpl?.ai_notes || '',
   };
 }
 
@@ -309,12 +325,9 @@ export default function CreateDietPlan() {
   const patient = patients.find(p => p.id === id) || patients[0];
   const seed = seedFromTemplate(patient);
 
-  /* form state — pre-filled from condition template */
-  const [plan, setPlan] = useState(seed.plan);
-  const [meals, setMeals] = useState(seed.meals);
-  const [restrictions, setRestrictions] = useState(seed.restrictions);
-  const [doctorNotes, setDoctorNotes] = useState(seed.doctorNotes);
-  const [files, setFiles]         = useState({ chart: null, pdf: null });
+  /* form state — single planData object, pre-filled from condition template */
+  const [planData, setPlanData] = useState(seed);
+  const [files, setFiles]       = useState({ chart: null, pdf: null });
   const [dragOver, setDragOver]   = useState(null);
   const [sendOpen, setSendOpen]   = useState(false);
   const [toast, setToast]         = useState(false);
@@ -324,9 +337,15 @@ export default function CreateDietPlan() {
   const [aiError, setAiError]       = useState('');
 
   /* helpers */
-  const setPlanField = (k, v) => setPlan(prev => ({ ...prev, [k]: v }));
-  const setMealField = (slot, field, val) => setMeals(prev => ({ ...prev, [slot]: { ...prev[slot], [field]: val } }));
-  const setRestrField = (k, v) => setRestrictions(prev => ({ ...prev, [k]: v }));
+  const setPlanField  = (k, v) => setPlanData(prev => ({ ...prev, [k]: v }));
+  const setMealField  = (slot, field, val) => setPlanData(prev => ({
+    ...prev,
+    meals: { ...prev.meals, [slot]: { ...prev.meals[slot], [field]: val } },
+  }));
+  const setRestrField = (k, v) => setPlanData(prev => ({
+    ...prev,
+    restrictions: { ...prev.restrictions, [k]: v },
+  }));
 
   const showToast = () => {
     setToast(true);
@@ -348,26 +367,29 @@ export default function CreateDietPlan() {
     }
   };
 
-  /* ── Generate full diet plan via Gemini ── */
+  /* ── Generate full diet plan via Gemini + Diet Engine ── */
   const handleGenerateAIDiet = async () => {
     setGeneratingAI(true);
     setAiError('');
     try {
-      const result = await generateAIDietPlan(patient, labMarkers);
-      if (result.meals) {
-        setMeals(prev => {
-          const updated = { ...prev };
-          Object.keys(result.meals).forEach(key => {
-            if (updated[key] !== undefined) updated[key] = result.meals[key];
-          });
-          return updated;
-        });
-      }
-      if (result.restrictions) setRestrictions(result.restrictions);
-      if (result.doctorNotes)  setDoctorNotes(result.doctorNotes);
-      if (result.planTitle)    setPlanField('title', result.planTitle);
-      if (result.calorieTarget) setPlanField('calorieTarget', result.calorieTarget);
-      if (result.duration)     setPlanField('duration', result.duration);
+      // Run the decision engine: markers → conditions → template → foods → prompt
+      const engine = await runDietEngine(patient, labMarkers);
+
+      console.log('🔬 Engine summary:', engine.engineSummary);
+      console.log('🎯 Detected conditions:', engine.detectedConditions);
+      console.log('✅ Recommended foods:', engine.recommendedFoods.length);
+      console.log('❌ Avoided foods:', engine.avoidFoods.length);
+
+      // Pass enriched prompt to Gemini — much more targeted than raw prompt
+      const result = await generateAIDietPlan(patient, labMarkers, engine.enrichedPrompt);
+
+      // Merge Gemini result into planData; preserve user-entered startDate
+      setPlanData(prev => ({
+        ...prev,
+        ...result,
+        startDate: prev.startDate,
+        meals: { ...prev.meals, ...(result.meals || {}) },
+      }));
       showToast();
     } catch (err) {
       setAiError('AI generation failed: ' + err.message);
@@ -385,13 +407,7 @@ export default function CreateDietPlan() {
     try {
       // Generate PDF as base64
       const blob = await pdf(
-        <DietPlanPDF
-          patient={patient}
-          plan={plan}
-          meals={meals}
-          restrictions={restrictions}
-          doctorNotes={doctorNotes}
-        />
+        <DietPlanPDF patient={patient} planData={planData} />
       ).toBlob();
 
       const base64 = await new Promise((resolve, reject) => {
@@ -406,7 +422,7 @@ export default function CreateDietPlan() {
         body: {
           to:          email,
           patientName: patient?.name || 'Patient',
-          planTitle:   plan?.title   || 'Diet Plan',
+          planTitle:   planData?.planTitle || 'Diet Plan',
           pdfBase64:   base64,
         },
       });
@@ -538,13 +554,13 @@ export default function CreateDietPlan() {
               <div className="cdp-field cdp-field--span2">
                 <label className="cdp-label">Plan Title</label>
                 <input className="cdp-input" placeholder="e.g. 14 Day Weight Loss Diet Plan"
-                  value={plan.title} onChange={e => setPlanField('title', e.target.value)} />
+                  value={planData.planTitle} onChange={e => setPlanField('planTitle', e.target.value)} />
               </div>
 
               <div className="cdp-field">
                 <label className="cdp-label">Duration</label>
                 <select className="cdp-input cdp-select"
-                  value={plan.duration} onChange={e => setPlanField('duration', e.target.value)}>
+                  value={planData.duration} onChange={e => setPlanField('duration', e.target.value)}>
                   {['7', '14', '30', '60', '90'].map(d => (
                     <option key={d} value={d}>{d} Days</option>
                   ))}
@@ -554,7 +570,7 @@ export default function CreateDietPlan() {
               <div className="cdp-field">
                 <label className="cdp-label">Start Date</label>
                 <input type="date" className="cdp-input"
-                  value={plan.startDate} onChange={e => setPlanField('startDate', e.target.value)} />
+                  value={planData.startDate} onChange={e => setPlanField('startDate', e.target.value)} />
               </div>
 
               <div className="cdp-field">
@@ -562,7 +578,7 @@ export default function CreateDietPlan() {
                 <div className="cdp-diet-toggle">
                   {['Vegetarian', 'Non-Vegetarian', 'Vegan'].map(type => (
                     <button key={type}
-                      className={`cdp-diet-btn ${plan.dietType === type ? 'cdp-diet-btn--active' : ''}`}
+                      className={`cdp-diet-btn ${planData.dietType === type ? 'cdp-diet-btn--active' : ''}`}
                       onClick={() => setPlanField('dietType', type)}>
                       {type}
                     </button>
@@ -573,7 +589,7 @@ export default function CreateDietPlan() {
               <div className="cdp-field">
                 <label className="cdp-label">Daily Calorie Target (kcal)</label>
                 <input type="number" className="cdp-input" placeholder="e.g. 1800"
-                  value={plan.calorieTarget} onChange={e => setPlanField('calorieTarget', e.target.value)} />
+                  value={planData.calorieTarget} onChange={e => setPlanField('calorieTarget', e.target.value)} />
               </div>
             </div>
           </div>
@@ -603,24 +619,24 @@ export default function CreateDietPlan() {
                     <label className="cdp-label">Food Items</label>
                     <textarea className="cdp-input cdp-textarea cdp-textarea--sm" rows={2}
                       placeholder="e.g. Oats with chia seeds, green tea..."
-                      value={meals[key].items} onChange={e => setMealField(key, 'items', e.target.value)} />
+                      value={planData.meals[key].items} onChange={e => setMealField(key, 'items', e.target.value)} />
                   </div>
                   <div className="cdp-grid cdp-grid--2">
                     <div className="cdp-field">
                       <label className="cdp-label">Quantity</label>
                       <input className="cdp-input cdp-input--sm" placeholder="e.g. 1 bowl"
-                        value={meals[key].quantity} onChange={e => setMealField(key, 'quantity', e.target.value)} />
+                        value={planData.meals[key].quantity} onChange={e => setMealField(key, 'quantity', e.target.value)} />
                     </div>
                     <div className="cdp-field">
                       <label className="cdp-label">Calories (kcal)</label>
                       <input type="number" className="cdp-input cdp-input--sm" placeholder="e.g. 320"
-                        value={meals[key].calories} onChange={e => setMealField(key, 'calories', e.target.value)} />
+                        value={planData.meals[key].calories} onChange={e => setMealField(key, 'calories', e.target.value)} />
                     </div>
                   </div>
                   <div className="cdp-field">
                     <label className="cdp-label">Notes</label>
                     <input className="cdp-input cdp-input--sm" placeholder="Special instructions..."
-                      value={meals[key].notes} onChange={e => setMealField(key, 'notes', e.target.value)} />
+                      value={planData.meals[key].notes} onChange={e => setMealField(key, 'notes', e.target.value)} />
                   </div>
                 </div>
               </div>
@@ -644,30 +660,30 @@ export default function CreateDietPlan() {
                 <label className="cdp-label">Foods to Avoid</label>
                 <textarea className="cdp-input cdp-textarea" rows={3}
                   placeholder="e.g. Refined sugar, processed foods, excess dairy..."
-                  value={restrictions.avoid} onChange={e => setRestrField('avoid', e.target.value)} />
+                  value={planData.restrictions.avoid} onChange={e => setRestrField('avoid', e.target.value)} />
               </div>
               <div className="cdp-field">
                 <label className="cdp-label">Recommended Foods</label>
                 <textarea className="cdp-input cdp-textarea" rows={3}
                   placeholder="e.g. Leafy greens, whole grains, anti-inflammatory foods..."
-                  value={restrictions.recommended} onChange={e => setRestrField('recommended', e.target.value)} />
+                  value={planData.restrictions.recommended} onChange={e => setRestrField('recommended', e.target.value)} />
               </div>
               <div className="cdp-field">
                 <label className="cdp-label">Lifestyle Instructions</label>
                 <textarea className="cdp-input cdp-textarea" rows={3}
                   placeholder="e.g. Eat slowly, avoid screen time during meals, chew well..."
-                  value={restrictions.lifestyle} onChange={e => setRestrField('lifestyle', e.target.value)} />
+                  value={planData.restrictions.lifestyle} onChange={e => setRestrField('lifestyle', e.target.value)} />
               </div>
               <div className="cdp-field">
                 <label className="cdp-label">Exercise Recommendation</label>
                 <textarea className="cdp-input cdp-textarea" rows={3}
                   placeholder="e.g. 30 min brisk walk 5x/week, yoga 3x/week..."
-                  value={restrictions.exercise} onChange={e => setRestrField('exercise', e.target.value)} />
+                  value={planData.restrictions.exercise} onChange={e => setRestrField('exercise', e.target.value)} />
               </div>
               <div className="cdp-field">
                 <label className="cdp-label">Daily Water Intake</label>
                 <input className="cdp-input" placeholder="e.g. 2.5 litres / day"
-                  value={restrictions.water} onChange={e => setRestrField('water', e.target.value)} />
+                  value={planData.restrictions.water} onChange={e => setRestrField('water', e.target.value)} />
               </div>
             </div>
           </div>
@@ -688,7 +704,7 @@ export default function CreateDietPlan() {
               <label className="cdp-label">Special Instructions</label>
               <textarea className="cdp-input cdp-textarea cdp-textarea--lg" rows={5}
                 placeholder="Add any clinical notes, medication interactions, lab-based dietary restrictions, or follow-up instructions..."
-                value={doctorNotes} onChange={e => setDoctorNotes(e.target.value)} />
+                value={planData.doctorNotes} onChange={e => setPlanField('doctorNotes', e.target.value)} />
             </div>
           </div>
         </section>
@@ -768,7 +784,7 @@ export default function CreateDietPlan() {
               <Icon name="eye" /> Preview Plan
             </button>
             <PDFDownloadLink
-              document={<DietPlanPDF patient={patient} plan={plan} meals={meals} restrictions={restrictions} doctorNotes={doctorNotes} />}
+              document={<DietPlanPDF patient={patient} planData={planData} />}
               fileName={`DietPlan-${patient?.name?.replace(/\s+/g, '-') || 'patient'}.pdf`}
               className="cdp-btn cdp-btn--secondary"
             >

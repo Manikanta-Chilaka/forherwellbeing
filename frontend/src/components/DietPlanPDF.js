@@ -369,11 +369,11 @@ function MealCard({ slot, meal, colorIndex }) {
 }
 
 /* ─── PDF Document ───────────────────────────────────── */
-export default function DietPlanPDF({ patient, plan, meals, restrictions, doctorNotes }) {
+export default function DietPlanPDF({ patient, planData }) {
   const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
 
   const totalCalories = MEAL_SLOTS.reduce((sum, s) => {
-    const cal = parseInt(meals?.[s.key]?.calories || '0', 10);
+    const cal = parseInt(planData?.meals?.[s.key]?.calories || '0', 10);
     return sum + (isNaN(cal) ? 0 : cal);
   }, 0);
 
@@ -392,11 +392,11 @@ export default function DietPlanPDF({ patient, plan, meals, restrictions, doctor
               <Text style={S.headerBadgeText}>PERSONALISED DIET PLAN</Text>
             </View>
           </View>
-          <Text style={S.headerTitle}>{plan?.title || 'Diet Plan'}</Text>
+          <Text style={S.headerTitle}>{planData?.planTitle || 'Diet Plan'}</Text>
           <Text style={S.headerSub}>
-            {plan?.duration ? `${plan.duration}-Day Plan` : ''}
-            {plan?.startDate ? `  ·  Starting ${plan.startDate}` : ''}
-            {plan?.dietType  ? `  ·  ${plan.dietType}` : ''}
+            {planData?.duration ? `${planData.duration}-Day Plan` : ''}
+            {planData?.startDate ? `  ·  Starting ${planData.startDate}` : ''}
+            {planData?.dietType  ? `  ·  ${planData.dietType}` : ''}
           </Text>
         </View>
 
@@ -406,8 +406,8 @@ export default function DietPlanPDF({ patient, plan, meals, restrictions, doctor
             { label: 'Patient Name', value: patient?.name     || '—' },
             { label: 'Age',          value: patient?.age ? `${patient.age} yrs` : '—' },
             { label: 'Condition',    value: patient?.condition || '—' },
-            { label: 'Diet Type',    value: plan?.dietType    || '—' },
-            { label: 'Duration',     value: plan?.duration ? `${plan.duration} Days` : '—' },
+            { label: 'Diet Type',    value: planData?.dietType    || '—' },
+            { label: 'Duration',     value: planData?.duration ? `${planData.duration} Days` : '—' },
             { label: 'Prepared On',  value: today },
           ].map(({ label, value }) => (
             <View key={label} style={S.patientField}>
@@ -418,13 +418,13 @@ export default function DietPlanPDF({ patient, plan, meals, restrictions, doctor
         </View>
 
         {/* ── Calorie Banner ── */}
-        {(totalCalories > 0 || plan?.calorieTarget) && (
+        {(totalCalories > 0 || planData?.calorieTarget) && (
           <View style={[S.sectionWrap, { marginTop: 16 }]}>
             <View style={S.calBanner}>
               <View>
                 <Text style={S.calLabel}>DAILY CALORIE TARGET</Text>
                 <Text style={S.calValue}>
-                  {plan?.calorieTarget || totalCalories} <Text style={S.calUnit}>kcal / day</Text>
+                  {planData?.calorieTarget || totalCalories} <Text style={S.calUnit}>kcal / day</Text>
                 </Text>
               </View>
               {totalCalories > 0 && (
@@ -445,7 +445,7 @@ export default function DietPlanPDF({ patient, plan, meals, restrictions, doctor
           </View>
           <View style={S.mealGrid}>
             {MEAL_SLOTS.map((slot, i) => (
-              <MealCard key={slot.key} slot={slot} meal={meals?.[slot.key]} colorIndex={i} />
+              <MealCard key={slot.key} slot={slot} meal={planData?.meals?.[slot.key]} colorIndex={i} />
             ))}
           </View>
         </View>
@@ -458,44 +458,50 @@ export default function DietPlanPDF({ patient, plan, meals, restrictions, doctor
           </View>
           <View style={S.twoCol}>
             <View style={S.col}>
-              {restrictions?.avoid && (
+              {planData?.restrictions?.avoid && (
                 <View style={S.infoCard}>
                   <Text style={S.infoCardTitle}>Foods to Avoid</Text>
-                  <Text style={S.infoCardText}>{restrictions.avoid}</Text>
+                  <Text style={S.infoCardText}>{planData.restrictions.avoid}</Text>
                 </View>
               )}
-              {restrictions?.water && (
+              {planData?.restrictions?.water && (
                 <View style={S.infoCard}>
                   <Text style={S.infoCardTitle}>Daily Water Intake</Text>
-                  <Text style={S.infoCardText}>{restrictions.water}</Text>
+                  <Text style={S.infoCardText}>{planData.restrictions.water}</Text>
                 </View>
               )}
             </View>
             <View style={S.colLast}>
-              {restrictions?.recommended && (
+              {planData?.restrictions?.recommended && (
                 <View style={S.infoCard}>
                   <Text style={S.infoCardTitle}>Recommended Foods</Text>
-                  <Text style={S.infoCardText}>{restrictions.recommended}</Text>
+                  <Text style={S.infoCardText}>{planData.restrictions.recommended}</Text>
                 </View>
               )}
-              {restrictions?.exercise && (
+              {planData?.restrictions?.exercise && (
                 <View style={S.infoCard}>
                   <Text style={S.infoCardTitle}>Exercise</Text>
-                  <Text style={S.infoCardText}>{restrictions.exercise}</Text>
+                  <Text style={S.infoCardText}>{planData.restrictions.exercise}</Text>
                 </View>
               )}
             </View>
           </View>
-          {restrictions?.lifestyle && (
+          {planData?.restrictions?.lifestyle && (
             <View style={S.infoCard}>
               <Text style={S.infoCardTitle}>Lifestyle Instructions</Text>
-              <Text style={S.infoCardText}>{restrictions.lifestyle}</Text>
+              <Text style={S.infoCardText}>{planData.restrictions.lifestyle}</Text>
+            </View>
+          )}
+          {planData?.supplements && (
+            <View style={S.infoCard}>
+              <Text style={S.infoCardTitle}>Supplements</Text>
+              <Text style={S.infoCardText}>{planData.supplements}</Text>
             </View>
           )}
         </View>
 
         {/* ── Doctor Notes ── */}
-        {doctorNotes && (
+        {planData?.doctorNotes && (
           <View style={S.sectionWrap}>
             <View style={S.sectionHeader}>
               <View style={S.sectionDot} />
@@ -503,7 +509,7 @@ export default function DietPlanPDF({ patient, plan, meals, restrictions, doctor
             </View>
             <View style={S.notesBox}>
               <Text style={S.notesTitle}>Special Clinical Instructions</Text>
-              <Text style={S.notesText}>{doctorNotes}</Text>
+              <Text style={S.notesText}>{planData.doctorNotes}</Text>
             </View>
           </View>
         )}

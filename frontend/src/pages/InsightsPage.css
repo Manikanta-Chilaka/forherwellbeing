@@ -91,7 +91,7 @@
 
 .insight-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(89, 123, 96, 0.12);
+  box-shadow: 0 16px 40px rgba(90, 50, 40, 0.12);
 }
 
 .insight-card__top {
@@ -119,7 +119,7 @@
 }
 
 .insight-card__title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 1.35rem;
   font-weight: 600;
   color: var(--text-dark);

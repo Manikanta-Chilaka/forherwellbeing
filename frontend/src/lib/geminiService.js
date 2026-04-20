@@ -1,5 +1,5 @@
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
 
 /* ─── Detect MIME type from URL/filename ─────────────────── */
 function getMimeType(url) {
@@ -99,50 +99,30 @@ Extract every marker visible in the report.`;
 }
 
 
-/* ─── Generate Diet Plan from Lab Results + Patient Data ─
-   Generates a complete structured diet plan.
-──────────────────────────────────────────────────────── */
-export async function generateAIDietPlan(patient, labMarkers) {
-  const labSummary = labMarkers.length > 0
-    ? labMarkers.map(m => `${m.marker}: ${m.value} (${m.status})`).join('\n')
-    : 'No lab markers provided.';
+/* ─── Generate Diet Plan ─────────────────────────────────────
+   Gemini's ONLY job: return structured data (JSON).
+   PDF generation is handled entirely by the React app.
 
-  const prompt = `You are Dr. Raga Deepthi, a specialist in women's health and nutrition at ForHerWellbeing clinic.
+   Accepts either:
+   A) enrichedPrompt (string) — from dietEngine.runDietEngine()  ← preferred
+   B) patient + labMarkers    — fallback (raw prompt)
+──────────────────────────────────────────────────────────── */
+export async function generateAIDietPlan(patient, labMarkers, enrichedPrompt = null) {
 
-PATIENT PROFILE:
-- Name: ${patient.name || 'Patient'}
-- Age: ${patient.age || 'Unknown'} years
-- Condition: ${patient.condition || 'General wellness'}
-- Diet Type: ${patient.dietType || 'Non-Vegetarian'}
-- Food Dislikes / Avoidances: ${patient.foodDislikes || 'None'}
-- Known Allergies: ${patient.allergies || 'None'}
-- Medications: ${patient.medications || 'None'}
-- Menstrual Health: ${patient.menstrual || 'Not specified'}
-- Stress Level: ${patient.stress || 'Not specified'}
-- Sleep: ${patient.sleep || 'Not specified'}
-- Activity Level: ${patient.activity || 'Not specified'}
-- Weekly Budget: ${patient.budget || 'Not specified'}
-
-LAB RESULTS:
-${labSummary}
-
-Create a PERSONALIZED 14-day diet plan that specifically addresses the lab deficiencies and the patient's condition.
-Food suggestions must respect: diet type (${patient.dietType}), allergies, and food dislikes.
-
-Return ONLY a valid JSON object (no markdown, no explanation):
-{
+  const JSON_SCHEMA = `{
   "planTitle": "string",
-  "calorieTarget": "number as string",
+  "calorieTarget": "string (number only, e.g. 1800)",
   "dietType": "string",
   "duration": "14",
+  "detectedConditions": ["string"],
   "meals": {
-    "earlyMorning": { "items": "string", "quantity": "string", "calories": "number as string", "notes": "string" },
-    "breakfast":    { "items": "string", "quantity": "string", "calories": "number as string", "notes": "string" },
-    "midMorning":   { "items": "string", "quantity": "string", "calories": "number as string", "notes": "string" },
-    "lunch":        { "items": "string", "quantity": "string", "calories": "number as string", "notes": "string" },
-    "eveningSnack": { "items": "string", "quantity": "string", "calories": "number as string", "notes": "string" },
-    "dinner":       { "items": "string", "quantity": "string", "calories": "number as string", "notes": "string" },
-    "bedtime":      { "items": "string", "quantity": "string", "calories": "number as string", "notes": "string" }
+    "earlyMorning": { "items": "string", "quantity": "string", "calories": "string", "notes": "string" },
+    "breakfast":    { "items": "string", "quantity": "string", "calories": "string", "notes": "string" },
+    "midMorning":   { "items": "string", "quantity": "string", "calories": "string", "notes": "string" },
+    "lunch":        { "items": "string", "quantity": "string", "calories": "string", "notes": "string" },
+    "eveningSnack": { "items": "string", "quantity": "string", "calories": "string", "notes": "string" },
+    "dinner":       { "items": "string", "quantity": "string", "calories": "string", "notes": "string" },
+    "bedtime":      { "items": "string", "quantity": "string", "calories": "string", "notes": "string" }
   },
   "restrictions": {
     "avoid":       "string",
@@ -151,8 +131,41 @@ Return ONLY a valid JSON object (no markdown, no explanation):
     "water":       "string",
     "exercise":    "string"
   },
+  "supplements": "string",
   "doctorNotes": "string"
 }`;
+
+  // Use engine-built prompt if provided, otherwise fall back to raw prompt
+  const prompt = enrichedPrompt
+    ? `${enrichedPrompt}\n\nReturn ONLY this JSON structure — no markdown, no explanation:\n${JSON_SCHEMA}`
+    : (() => {
+        const labSummary = labMarkers.length > 0
+          ? labMarkers.map(m => `${m.marker}: ${m.value} (${m.status})`).join('\n')
+          : 'No lab markers provided.';
+
+        return `You are Dr. Raga Deepthi, a specialist in women's health and nutrition at ForHerWellbeing clinic.
+
+PATIENT PROFILE:
+- Name: ${patient.name || 'Patient'}
+- Age: ${patient.age || 'Unknown'} years
+- Condition: ${patient.condition || 'General wellness'}
+- Diet Type: ${patient.diet_type || patient.dietType || 'Non-Vegetarian'}
+- Food Dislikes: ${patient.food_dislikes || patient.foodDislikes || 'None'}
+- Allergies: ${patient.allergies || 'None'}
+- Medications: ${patient.medications || 'None'}
+- Menstrual Health: ${patient.menstrual || 'Not specified'}
+- Stress Level: ${patient.stress || 'Not specified'}
+- Sleep: ${patient.sleep || 'Not specified'}
+- Activity: ${patient.activity || 'Not specified'}
+- Budget: ${patient.budget || 'Not specified'}
+
+LAB RESULTS:
+${labSummary}
+
+Generate a PERSONALIZED 14-day Indian diet plan addressing the lab deficiencies and condition.
+Return ONLY this JSON structure — no markdown, no explanation:
+${JSON_SCHEMA}`;
+      })();
 
   const body = {
     contents: [{ parts: [{ text: prompt }] }],

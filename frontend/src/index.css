@@ -8,24 +8,23 @@
 }
 
 :root {
-  --primary: #597B60;
-  --primary-light: #7B9C83;
-  --primary-dark: #3E5A46;
-  --accent: #A6CBD3;
-  --accent-light: #D5E8EC;
-  --cream: #FDF1DB;
-  --white: #FFFFFF;
-  --text-dark: #1C2B20;
-  --text-mid: #4A6151;
-  --text-light: #7A9280;
-  --border: #DFD5C6;
-  /* CTA contrast color — darker than --primary so it pops on cream/white */
-  --cta: #2E4D38;
-  --cta-hover: #1E3526;
+  --primary:       oklch(58% 0.14 10);
+  --primary-light: oklch(72% 0.11 10);
+  --primary-dark:  oklch(48% 0.15 10);
+  --accent:        oklch(80% 0.07 290);
+  --accent-light:  oklch(90% 0.05 290);
+  --cream:         #fdf9f7;
+  --white:         #ffffff;
+  --text-dark:     #1e1410;
+  --text-mid:      #5a4a42;
+  --text-light:    #9c8880;
+  --border:        rgba(230, 200, 190, 0.5);
+  --cta:           oklch(58% 0.14 10);
+  --cta-hover:     oklch(52% 0.14 10);
 }
 
 body {
-  font-family: 'Switzer', sans-serif;
+  font-family: 'DM Sans', 'Switzer', sans-serif;
   background-color: var(--cream);
   color: var(--text-dark);
   font-size: 16px;

@@ -1,0 +1,414 @@
+/* ══════════════════════════════════════════════════════
+   Health Assessment Page
+   Inherits: --primary, --accent-light, --border, --cream,
+             --cta, --text-dark, --text-mid, --text-light
+             .btn, .form-group, .section-* from HomePage.css
+   ══════════════════════════════════════════════════════ */
+
+/* ── Page shell ─────────────────────────────────────── */
+.ha-page {
+  min-height: 80vh;
+}
+
+.ha-form-wrap {
+  max-width: 660px;
+  margin: 0 auto;
+  padding-bottom: 5rem;
+}
+
+.ha-result-wrap {
+  max-width: 580px;
+  margin: 0 auto;
+  padding-bottom: 5rem;
+}
+
+/* ── Page header ────────────────────────────────────── */
+.ha-header {
+  text-align: center;
+  margin-bottom: 2.25rem;
+}
+
+.ha-header__sub {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  margin-top: 0.6rem;
+  line-height: 1.7;
+}
+
+/* ── Progress bar ───────────────────────────────────── */
+.ha-progress {
+  margin-bottom: 1.75rem;
+}
+
+.ha-progress__bar {
+  height: 5px;
+  background: var(--border);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.ha-progress__fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+
+.ha-progress__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary);
+  text-align: right;
+}
+
+/* ── Card wrapper ───────────────────────────────────── */
+.ha-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem;
+}
+
+/* ── Step shell ─────────────────────────────────────── */
+.ha-step__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.ha-step__num {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ha-step__title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.2rem;
+}
+
+.ha-step__desc {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+/* ── Yes / No toggle rows (Step 2) ─────────────────── */
+.ha-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.ha-toggle-row:last-child {
+  border-bottom: none;
+}
+
+.ha-toggle-row__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ha-toggle-row__label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.ha-toggle-row__desc {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  line-height: 1.45;
+}
+
+.ha-yn {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.ha-yn__btn {
+  padding: 0.45rem 1.1rem;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  font-family: 'Switzer', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.ha-yn__btn:hover {
+  border-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.ha-yn__btn--yes {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.ha-yn__btn--no {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--text-mid);
+}
+
+/* ── Option button group (Step 3) ───────────────────── */
+.ha-options {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+}
+
+.ha-option {
+  padding: 0.55rem 1.1rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  font-family: 'Switzer', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.ha-option:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--accent-light);
+}
+
+.ha-option--active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ── Goal cards (Step 4) ────────────────────────────── */
+.ha-goals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.ha-goal-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.6rem 1rem 1.4rem;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  font-family: 'Switzer', sans-serif;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: center;
+}
+
+.ha-goal-card:hover {
+  border-color: var(--primary);
+  background: var(--accent-light);
+}
+
+.ha-goal-card--active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+.ha-goal-card__check {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.ha-goal-card__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* ── Navigation buttons ─────────────────────────────── */
+.ha-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.ha-nav__back {
+  margin-right: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ha-nav__next {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ha-nav__next:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Footer trust line ──────────────────────────────── */
+.ha-footer-trust {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  margin-top: 1.5rem;
+  line-height: 1.8;
+}
+
+/* ── Result screen ──────────────────────────────────── */
+.ha-result {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 4rem 3rem;
+  text-align: center;
+}
+
+.ha-result__icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.75rem;
+}
+
+.ha-result__eyebrow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+
+.ha-result__title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.ha-result__message {
+  font-size: 1rem;
+  color: var(--text-mid);
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
+}
+
+.ha-result__explanation {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.ha-result__explanation p {
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  line-height: 1.85;
+}
+
+.ha-result__actions {
+  margin-bottom: 1.5rem;
+}
+
+.ha-result__actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ha-result__trust {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  line-height: 1.8;
+}
+
+/* ── Mobile ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .ha-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .ha-toggle-row {
+    gap: 0.75rem;
+  }
+
+  .ha-yn__btn {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.78rem;
+  }
+
+  .ha-goals {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+
+  .ha-goal-card {
+    padding: 1.25rem 0.75rem 1.1rem;
+  }
+
+  .ha-result {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .ha-form-wrap,
+  .ha-result-wrap {
+    padding-bottom: 3rem;
+  }
+}
